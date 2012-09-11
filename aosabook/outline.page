@@ -38,7 +38,7 @@
 
 2. 담당
   - dgoon: llvm, git, python packaging
-  - yarra: hdfs, berkeleydb
+  - yarra: hdfs, nginex, berkeleydb
   - gsong: pypy, socialcalc
   - pod: selenium web driver, sqlalchemy
   - haru: bash, processing.js
