@@ -1,3 +1,7 @@
+---
+title: 스터디 준비모임
+...
+
 0. 체크인: 기분/근황/야망
   - haru
     * 새로운 모임 공간에 온데다 새로운걸 시작한다고 하니 새로운 기분이 ...
@@ -38,7 +42,7 @@
 
 2. 담당
   - dgoon: llvm, git, python packaging
-  - yarra: hdfs, nginex, berkeleydb
+  - yarra: hdfs, nginx, berkeleydb
   - gsong: pypy, socialcalc
   - pod: selenium web driver, sqlalchemy
   - haru: bash, processing.js
