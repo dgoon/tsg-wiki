@@ -1,12 +1,17 @@
-[TSG](http://www.tuestudy.org) 위키 지부입니다
+---
+title: TSG Wiki
+...
 
-[SICP](http://mitpress.mit.edu/sicp/full-text/book/book.html), [HTDP](http://www.htdp.org) 후 세번째로 [aosabook](http://www.aosabook.org) 스터디를 합니다.
+TSG는 Tueday Study Group의 약자로, 매주 화요일 스터디 모임을 가지는 것을 정체성으로 하는 커뮤니티입니다. 본진은 [여기](http://www.tuestudy.org)이며, 이곳은 공부 내용/발표자료 정리 등을 위한 위키 지부입니다. 악의적인 사용자가 위키에 테러하는 등의 사건이 생기기 전까지는 공개 위키로 유지됩니다.
 
+[SICP](http://mitpress.mit.edu/sicp/full-text/book/book.html), [HTDP](http://www.htdp.org) 스터디를 마치고, 세번째 스터디로 2012년 9월~2012년 12월 동안 [aosabook](http://www.aosabook.org)을 읽습니다.
+
+0. [모임 역사](history) - 이전 스터디 자료들로 통하는 링크를 모아봅시다.
 1. [AOSABOOK 스터디 아웃라인](aosabook/outline)
-2. [발표자료](aosabook/materials)
+2. [AOSABOOK 발표자료](aosabook/materials)
 
 -----
 
-간단한 위키 사용법은 [여기](etc/help)를 클릭하세요.  
+간단한 위키 사용법은 [여기](etc/help)를 클릭하세요. 위키 문법에 익숙하지 않다면 [놀이터](sandbox)에서 연습해봅니다.
 
-**주의** Description of changes 에 한글을 넣으면 깨집니다. :'(
+**!주의!** Description of changes 에 한글을 넣으면 깨집니다. 한번 고쳐볼게요. :'(
