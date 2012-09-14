@@ -46,7 +46,8 @@ Threaded버전의 프로그램은 진행 중 블록되는 세 작업을 각각�
 
 Event-driven버전의 프로그램은 세 작업을 교대로 실행하지만 single thread에서 제어한다. I/O나 고 비용의 작업을 실행할 때, callback이 event loop에 등록되고, I/O가 완료될 동안 실행은 계속된다. callback은 작업이 완료되었을 때 수행할 작업을 설명한다. event loop는 event를 대기하고 event가 도착하면 이에 대해 대기중인 callback을 실행한다. 이것은 스레드의 도움없이 가능할 때 실행을 계속할 수 있도록 해 준다. Event-driven프로그램은 프로그래머가 thread safety에 대해 걱정할 필요가 없기 때문에 multi-threaded 프로그램보다 이해하기 쉽다.
 
-다음과 같을때 event-driven model은 좋은 선택이다 :
+다음과 같을때 event-driven model은 좋은 선택이다:
+
 1. 많은 작업들. 그것들이....
 2. 독립적이고....(서로 통신하거나 대기할 필요가 없다는 말)
 3. 이 중 어떤것들은 이벤트를 대기하는 동안 블록될때.
@@ -56,12 +57,41 @@ Event-driven버전의 프로그램은 세 작업을 교대로 실행하지만 si
 네트워킹 어플리케이션은 종종 정확히 이러한 특징을 가지기 때문에 event-driven model에 딱 맞다.
 
 ### Reusing Existing Applications
-Twisted가 만들어졌을때 이미 network protocols를 위해 많은 유명한 clients와 servers가 있었다. 왜 glyph는 Apache, IRCd, BIND, OpenSSH등 이미 존재하는 어플리케이션과 이것들의 client, server를 사용하지 않고 Twisted를 위해 처음부터 대발했을까?
+Twisted가 만들어졌을때 이미 network protocols를 위해 많은 유명한 clients와 servers가 있었다. 왜 glyph는 Apache, IRCd, BIND, OpenSSH등 이미 존재하는 어플리케이션과 이것들의 client, server를 사용하지 않고 Twisted를 위해 처음부터 개발했을까?
 
-이 server들은 일반적으로 C로 처음부터 구현된 networking code를 가지고 있었고 어플리케이션의 코드가 networking layer와 직접 연결되어있는 문제가 있었다. 이것은 이것들을 라이브러리로 사용하기 힘들게 한다. 이들을 동시에 사용할 때 블랙박스로 다루어야만 하며, 개발자가 같은 데이터를 다중의 프로토콜에 전송하고자 할 때 코드를 재사용할 방법을 제공하지 않는다. 이에 더해 server와 client구현은 종종 코드를 공유하지 않는 분리된 어플리케이션이다. 이 어플리케이션들을 확장하고 다양한 환경에서 client-server 호환성을 관리하는 것은 이것들의 필요성보다 더 어려운일이다.
+이 server들은 일반적으로 C로 처음부터 구현된 networking code를 가지고 있었고 어플리케이션의 코드가 networking layer와 직접 연결되어있는 문제가 있었다. 이러한 문제로 인해 이것들을 라이브러리로 사용하기 힘들게 한다. 이들을 동시에 사용할 때 블랙박스로 다루어야만 하며, 개발자가 같은 데이터를 다중의 프로토콜에 전송하고자 할 때 코드를 재사용할 방법을 제공하지 않는다. 이에 더해 server와 client구현은 종종 코드를 공유하지 않는 분리된 어플리케이션이다. 이 어플리케이션들을 확장하고 다양한 환경에서 client-server 호환성을 관리하는 것은 이것들의 필요성보다 더 어려운일이다.
 
 Twisted에 있는 client와 server는 일관된 interface를 사용하는 python으로 쓰여졌다. 이는 clients와 servers의 코드 공유, protocol간의 application logic 공유, test 코드등을 통해 새로운 clients와 servers를 제작하기 쉽게 해준다.
 
 ### The Reactor
-Twisted는 reactor design pattern을 구현한다. 이것은 single-threaded 환경에서 다양한 소스로부터 그의 핸들러 이벤트를 demultiplexing 과 dispat
+Twisted는 reactor design pattern을 구현한다. 이것은 single-threaded 환경에서 다양한 소스에서 발생하는 이벤트를 demultiplexing 하고  그에 맞는 핸들러를 dispatch하는 구조에 대한 설명이다.
+
+Twisted의 핵심은 reactor event loop이다. reactor는 network, filesystem, timer events에 대해 알고 있다. 이것은 이벤트를 기다리고 처리한다. 플랫폼에 특화된 처리들을 추상화하고 네트워크 스택의 어디에서든 이벤트를 쉽게 처리할 수 있는 인터페이스를 제공한다.
+
+reactor는 본질적으로 다음과 같다.
+
+~~~ {.python}
+while True:
+    timeout = time_until_next_timed_event()
+    events = wait_for_events(timeout)
+    events += timed_events_until(now())
+    for event in events:
+        event.process()
+~~~
+
+모든 플랫폼은 poll API를 기반으로하는 reactor가 기본이다. Twisted는 추가적으로 플랫폼에 종속된 high-volume multiplexing APIs를 지원한다. 플랫폼에 종속된 reactor는 FreeBSD의 kqueue를 이용한 KQueue reactor, epoll을 지원하는 시스템을 위한 epoll기반 reactor, Windows Input/Output Completion Ports를 기반으로 하는 IOCP reactor가 있다.
+
+Twisted가 관리하는 polling 구현에 종속된 세부사항의 예는 다음과 같다.
+
+* 네트워크 및 파일시스템의 한계점들.
+* 버퍼링 방식.
+* 연결 끊김을 인지하는 방법.
+* 에러 발생시 리턴하는 값.
+
+Twisted의 구현은 reactor는 저변의 non-blocking API의 사용과 애매한 특별한 상황에대한 올바른 처리에 주의를 기울였다. python은 IOCP API를 지원하지 않기때문에 Twisted는 이에대한 자체 구현을 관리한다.
+
+### Managing Callback Chains
+Callbacks는 event-driven programming의 근본적인 부분이고 reactor가 애플리케이션에게 이벤트가 완료되었음을 알리는 방법이다. event-driven program이 성장한다는 것은, 하나의 애플리케이션이 처리하는 성공 및 실패 상황을 위한 이벤트의 처리가 점점 복잡해지는 것을 의미한다. 적절한 callback의 등록을 실패하는것은 절대 발생하지않는 이벤트 처리 또는  네트워크 스택에서 부터 callback chain을 타고 상위 애플리케이션에 전파되었어야 할 에러에 프로그램을 멈춰 서 있게 한다.
+
+
 
