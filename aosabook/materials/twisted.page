@@ -28,7 +28,19 @@ Glyph는 그 자신이 networking platform을 구현할 가능성에 직면했�
 * 이식성 : 주요 OS가 제공하는 event notification system에대해 단일한 인터페이스 제공.
 * "batteries-included" : 외부와 통신하는 유명한 application-layer protocols의 구현을 제공하여 Twisted를 개발자에게 바로 사용할수 있게 한다.
 * RFC를 준수하고, 견고한 test suit와 함께 적합성을 제공한다.
-* 하나 이상의 networking protocols를 쉽게 사용할수 있도록 한다.
+* 하나 이상의 networking protocols를 쉽게  함께 사용할수 있도록 한다.
 * 확장성이 있다.
 
+## The Architecture of Twisted
+Twisted는 event-driven networking engine이다. Event-driven programming은 Twisted의 디자인 철학에 통합되어 있다. 잠깐 event-driven programming의 의미를 정확히 알아보자.
+
+Event-driven programming은 program flow가 external event에 의해 정의되는 programming paradigm이다. 이것의 개성은 이벤트 루프와 이벤트 발생 시 실행되는 callbacks로 나타난다. 두개의 다른 공통 programming paradigm들은 (single-threaded) synchronous 과 multi-threaded programming이다.
+
+예제를 통해 single threaded, multi-threaded, event-driven programming models를 비교 해 보자. 그림 1은 이 세가지 모델에서 시간의 흐름에 따른 작업 완료를 보여준다.   program은 완료해야하는 세 개의 작업이 있고 각 작업은 I/O의 완료를 기다리기 위해 블록된다. I/O의 완료를 대기하는 시간은 회색으로 표시된다.
+
+![그림 1 Threading models](http://www.aosabook.org/images/twisted/threading_models.png)
+
+Single-threaded synchronous 버전의 프로그램은 작업이 순서대로 실행된다. 만약 하나의 작업이 I/O동안 블록된다면 모든 나머지 작업들은 그것이 끝나고 그들의 차례가 될 때 까지 기다려야 한다. 이 결정론적인 순서와 순차 작업은 이해하기 쉽지만 각각의 프로그램에 의존성이 없는 경우, 각 프로그램은 다른 프로그램을 기다려야 하기 때문에 불필요하게 느려진다.
+
+Threaded버전의 프로그램은 진행 중 블록되는 세 작업이 각각의 스레드에서 제어한다. 이 스레드들은 OS가 관리하며 multiple processors 환경에서는 동시에 실행되지만 single processor환경에서는 교대로 실행된다. 이것은 다른 스레드가 블록된 상태에도 일부 스레드들은 작동할수 있게 한다. 이것은 종종 유사한 synchronous program보다 시간 효율적이지만 여러 스레드에서 동시에 접근할 수 있는 공유자원의 보호를 위한 코드를 추가해야한다. Multi-threaded programs는 좀 더 이해하기 어려워지는데 이는 프로세스 직렬화(잠금), 재진입, 스레드 지역 저장소 등 구현이 올바르지 않을 경우 찾기 어렵고 골치아픈 버그를 만들어내는 메커니즘들에 대해 고민해야 하기 때문이다.
 
