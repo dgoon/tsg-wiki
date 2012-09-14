@@ -55,3 +55,13 @@ Event-driven버전의 프로그램은 세 작업을 교대로 실행하지만 si
 
 네트워킹 어플리케이션은 종종 정확히 이러한 특징을 가지기 때문에 event-driven model에 딱 맞다.
 
+### Reusing Existing Applications
+Twisted가 만들어졌을때 이미 network protocols를 위해 많은 유명한 clients와 servers가 있었다. 왜 glyph는 Apache, IRCd, BIND, OpenSSH등 이미 존재하는 어플리케이션과 이것들의 client, server를 사용하지 않고 Twisted를 위해 처음부터 대발했을까?
+
+이 server들은 일반적으로 C로 처음부터 구현된 networking code를 가지고 있었고 어플리케이션의 코드가 networking layer와 직접 연결되어있는 문제가 있었다. 이것은 이것들을 라이브러리로 사용하기 힘들게 한다. 이들을 동시에 사용할 때 블랙박스로 다루어야만 하며, 개발자가 같은 데이터를 다중의 프로토콜에 전송하고자 할 때 코드를 재사용할 방법을 제공하지 않는다. 이에 더해 server와 client구현은 종종 코드를 공유하지 않는 분리된 어플리케이션이다. 이 어플리케이션들을 확장하고 다양한 환경에서 client-server 호환성을 관리하는 것은 이것들의 필요성보다 더 어려운일이다.
+
+Twisted에 있는 client와 server는 일관된 interface를 사용하는 python으로 쓰여졌다. 이는 clients와 servers의 코드 공유, protocol간의 application logic 공유, test 코드등을 통해 새로운 clients와 servers를 제작하기 쉽게 해준다.
+
+### The Reactor
+Twisted는 reactor design pattern을 구현한다. 이것은 single-threaded 환경에서 다양한 소스로부터 그의 핸들러 이벤트를 demultiplexing 과 dispat
+
