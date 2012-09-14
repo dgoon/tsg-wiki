@@ -156,3 +156,42 @@ reactor.run()
 
 ### Deferreds
 
+Deferred 객체는 아직 존재하지 않는 결과를 나타내는 아이디어에 대한 추상이다. 이것은 또한 이 결과에 대한 콜백 체인을 관리하는데 도움을 준다. 함수에서 리턴했을때, Deferred는 그 함수가 어떤 지점에서 결과를 가지리라는 것에 대한 약속이다. 리턴된 하나의 Deferred는 이벤트에 대한 모든 콜백의 참조를 포함하기때문에 이것 하나만 함수 사이에 전달함으로써 개별 콜백을 전달하는 것 보다 간단히 콜백을 관리할 수 있다.
+
+Deferred는 한 쌍의 콜백 체인을 가진다. 하나는 성공을 위한 것(callbacks) 다른 하나는 에러를 위한것(errbacks)이다. Deferred는 두 개의 비어있는 체인으로 시작한다. 이벤트 처리의 각 단계마다 성공과 실패를 처리 할 callback과 errback 쌍을 하나씩 등록한다. 비동기 결과가 도착하면, Deferred는 "fired"가 되고 적절한 callback 또는 errback이 추가된 순서대로 호출된다.
+
+Deferred를 사용한 버전의 비동기 URL fetcher pseudo-code이다:
+
+~~~ {.python}
+from twisted.internet import reactor
+import getPage
+
+def processPage(page):
+    print page
+
+def logError(error):
+    print error
+
+def finishProcessing(value):
+    print "Shutting down..."
+    reactor.stop()
+
+url = "http://google.com"
+deferred = getPage(url) # getPage returns a Deferred
+deferred.addCallbacks(processPage, logError)
+deferred.addBoth(finishProcessing)
+
+reactor.run()
+~~~
+
+이 버전에서 같은 이벤트 핸들러가 호출되지만 이것들은 코드 전체에 흩어지고 getPage함수의 매개변수로 전달되는 대신 하나의 Deferred객체에 등록된다.
+
+Defered는 두 단계의 callbacks들과 함께 생성된다. 처음의 addCallbacks는 processPage 콜백과 logError 콜백을 체인의 첫 단계에 추가한다. 그 다음 addBoth는 finishProcessing을 양쪽 체인의 두 번째 단계에 추가한다. 그림으로 보면 다음과 같다.
+
+![그림 2](http://www.aosabook.org/images/twisted/deferred.png)
+
+Deferred는 딱 한번만 fire될 수 있다. 다시 하려하면 Exception을 일으킨다. 이것은 Deferred의 문맥적인 의미를 동기 구현의 try/except와 비슷하게 만들어주어 비동기 이벤트 처리를 이해하기 쉽게 해주고 하나의 이벤트에 대해 한 번 이상 또는 이하로 콜백이 호출됨에 따른 골치아픈 버그를 없애준다.
+
+Twisted 프로그램의 플로우를 이해하기 위해서는 Deferred의 이해가 중요하다. 하지만 Twisted가 제공하는 네트워크 프로토콜을 위한 고수준의 추상을 사용하는 경우에는 Deferred를 직접 호출 하는 일은 없다.
+
+Deferred의 추상화는 매우 강력하고 jQuery, Dojo, Mochikit과 같은 다른 event-driven platforms에서 차용해가는 기능이다.
