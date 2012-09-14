@@ -195,3 +195,81 @@ Deferred는 딱 한번만 fire될 수 있다. 다시 하려하면 Exception을 �
 Twisted 프로그램의 플로우를 이해하기 위해서는 Deferred의 이해가 중요하다. 하지만 Twisted가 제공하는 네트워크 프로토콜을 위한 고수준의 추상을 사용하는 경우에는 Deferred를 직접 호출 하는 일은 없다.
 
 Deferred의 추상화는 매우 강력하고 jQuery, Dojo, Mochikit과 같은 다른 event-driven platforms에서 차용해가는 기능이다.
+
+### Transports
+Transports는 네트워크를 넘어 통신하는 두 종단의 사이의 연결을 나타낸다. Transports는 stream- 또는 diagram-oriented, flow control, 신뢰성등의 연결에 대한 세부사항을 설명할 책임이 있다. TCP, UDP, UDS가 transport의 예이다. 이것들은 "최대한의 재상용을 위한 최소한의 기능"을 하도록 설계되었고 프로토콜 구현과 분리되어, 같은 형식의 transport를 많은 프로토콜이 사용할 수 있도록 한다. Transport는 ITransport 인터페이스를 구현한다. 인터페이스는 다음의 메소드를 가진다:
+
+write
+:    non-blocking 방식으로 순서대로 물리적인 연결에 데이터를 쓴다.
+writeSequence
+:    물리적인 연결에 문자열 리스트를 쓴다.
+loseConnection
+:    지연된 모든 데이터를 쓰고 연결을 닫는다.
+getPeer
+:    해당 연결에 대한 원격지의 주소를 얻는다.
+getHost
+:    해당 연결에 대한 지역의 주소를 얻는다.
+
+프로토콜로부터 transport를 떼어놓아서 두 레이어의 테스트가 용이하다. Mock transport는 검사를 위해 데이터를 단순히 문자열에 쓸 수 있다.
+
+### Protocols
+Protocols는 네트워크 이벤트를 비동기적을 어떻게 처리할 지 설명한다. HTTP, DNS, IMAP들은 애플리케이션 프로토콜의 예이다. Protocols는 IProtocol인터페이스를 구현하고 다음의 메소드를 포함한다:
+
+makeConnection
+:    Transport와 server에 연결을 만든다.
+connectionMade
+:    연결이 만들어지면 불린다.
+dataReceived
+:    데이터를 수신하면 불린다.
+connectionLost
+:    연결이 닫히면 불린다.
+
+다음의 예제는 reactor, protocols, transports의 관계를 잘 나타낸다. echo server와 client의 완전한 구현이다.
+
+~~~ {.python}
+from twisted.internet import protocol, reactor
+
+class Echo(protocol.Protocol):
+    def dataReceived(self, data):
+        # As soon as any data is received, write it back.
+        self.transport.write(data)
+
+class EchoFactory(protcol.Factory):
+    def buildProtocol(self, addr):
+        return Echo()
+
+reactor.listenTCP(8000, EchoFactory())
+reactor.run()
+~~~
+
+~~~ {.python}
+from twisted.internet import reactor, protocol
+
+class EchoClient(protocol.Protocol):
+    def connectionMade(self):
+        self.transport.write("hello world!")
+
+    def dataReceived(self, data):
+        print "Server said:", data
+        self.transport.loseConnection()
+
+    def connectionLost(self, reason):
+        print "connection lost"
+
+class EchoFactory(protocol.ClientFactory)
+    def buildProtocol(self, adr):
+        return EchoClient()
+
+    def clientConnectionFailed(self, connector, reason):
+        print "Connection failed - goodbye!"
+        reactor.stop()
+
+    def clientConnectionLost(self, connector, reason):
+        print "Connection lost - goodbye!"
+        reactor.stop()
+
+reactor.connectTCP("localhost", 8000, EchoFactory())
+reactor.run
+~~~
+
+server 스크립트를 실행하면 8000포트를 listening하는 TCP server가 시작한다. 서버는 echo 프로토콜을 사용하고 TCP transport를 통해 데이터를 내보낸다. client를 실행하면 server와의 TCP 연결을 맺고 서버의 응답을 출력하고 연결을 닫고 reactor를 종료한다. Factory는 양측에 필요한
