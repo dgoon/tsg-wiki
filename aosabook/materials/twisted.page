@@ -13,5 +13,22 @@ Twisted는 TCP, UDP, SSL/TLS, HTTP, IMAP, SSH, IRC, FTP와 같은 다양한 tran
 
 glyph은 즉시 python의 select와 event-driven programming으로 전환하여 게임의 서버와 클라이언트를 python의 select로 구현하였다. 하지만 그는 더 많은 일을 하고싶었다. 근본적으로, 그는 네트워크 활동을 게임내의 오브젝트에 대한 메소드 호출로 바꾸기를 바랬다. Nethack mailer daemon과 유사하게, 게임 내에서 이메일을 받을 수 있다면 어떨까? 게임의 모든 사용자가 홈페이지를 가지면 어떨까? Glyph은 그 자신이 python의 select를 사용한 좋은 IMAP과 HTTP 클라이언트 및 서버가 필요하다는 것을 발견했다.
 
-그는 처음엔 
+그는 처음엔 Medusa를 고려했다. Medusa는 90년대 중반에 개발된 플랫폼으로 python의 asyncore 모듈을 이용한 네트워킹 서버 개발을 목적으로 한다. asyncore는 비동기 소켓 핸들러로써 OS의 select API위에서 dispatcher와 callback interface를 구성한다.
+
+이것은 glyph에게 영감을 주는 발견이었지만 Medusa는 두 가지의 단점이 있었다.
+
+1. Glyph가 Twisted Reality의 작업을 시작하던 2001년부터 유지보수가 되지 않았었다.
+2. asyncore는 socket을 감싸는 wrapper였기때문에 애플리케이션 프로그래머는 여전히 socket을 직접 조작해야 했다. 이는 이식성이 여전히 프로그래머의 몫으로 남아있음을 의미했다. 더욱이 그 당시 asyncore의 windows 지원은 버그가 많았고 glyph는 그가 windows의 GUI client를 원하게 될것이라는 것을 알고 있었다.
+
+Glyph는 그 자신이 networking platform을 구현할 가능성에 직면했고, Twisted Reality가 그의 게임과 같이 흥미로운 문제의 문을 열었다는 것을 실감했다.
+
+시간이 지나, Twisted Reality game은 Twisted networking platform이 되었고 이것은 현존하는 python의 network platforms가 하지 못하는 일을 할 수 있다.
+
+* Multi-threaded programming대신에 event-driven programming을 사용한다.
+* 이식성 : 주요 OS가 제공하는 event notification system에대해 단일한 인터페이스 제공.
+* "batteries-included" : 외부와 통신하는 유명한 application-layer protocols의 구현을 제공하여 Twisted를 개발자에게 바로 사용할수 있게 한다.
+* RFC를 준수하고, 견고한 test suit와 함께 적합성을 제공한다.
+* 하나 이상의 networking protocols를 쉽게 사용할수 있도록 한다.
+* 확장성이 있다.
+
 
