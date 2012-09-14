@@ -93,5 +93,66 @@ Twisted의 구현은 reactor는 저변의 non-blocking API의 사용과 애매�
 ### Managing Callback Chains
 Callbacks는 event-driven programming의 근본적인 부분이고 reactor가 애플리케이션에게 이벤트가 완료되었음을 알리는 방법이다. event-driven program이 성장한다는 것은, 하나의 애플리케이션이 처리하는 성공 및 실패 상황을 위한 이벤트의 처리가 점점 복잡해지는 것을 의미한다. 적절한 callback의 등록을 실패하는것은 절대 발생하지않는 이벤트 처리 또는  네트워크 스택에서 부터 callback chain을 타고 상위 애플리케이션에 전파되었어야 할 에러에 프로그램을 멈춰 서 있게 한다.
 
+동기/비동기 방식의 URL fetching utility의 python-like pseudo-code를 이용하여 event-driven program의 함정에 대해 알아보자.
 
+Synchronous URL fetcher:
+
+~~~ {.python}
+import getPage
+
+def processPage(page):
+    print page
+
+def logError(error):
+    print error
+
+def finishProcessing(value):
+    print "Shutting down...."
+    exit(0)
+
+url = "http://google.com"
+try:
+    page = getPage(url)
+    processPage(page)
+except Error, e:
+    logError(error)
+finally:
+    finishProcessing()
+~~~
+
+Asynchronous URL fetcher:
+
+~~~ {.python}
+from twisted.internet import reactor
+import getPage
+
+def processPage(page):
+    print page
+    finishProcessing()
+
+def logError(error):
+    print error
+    finishProcessing()
+
+def finishProcessing(value):
+    print "Shutting down..."
+    reactor.stop()
+
+url = "http://google.com"
+# getPage takes: url,
+#    success callback, error callback
+getPage(url, processPage, logError)
+
+reactor.run()
+~~~
+
+비동기 URL fetcher에서 reactor.run()은 reactor event loop를 시작한다. 동기/비동기 버전에서 가상의 getPage 함수는 페이지 검색기능을 수행한다. processPage는 검색이 성공했을 때 호출되고 logError는 페이지의 검색 도중 Exception이 발생했을 때 호출된다. 각각의 경우에 finishProcessing함수가 마지막에 호출된다.
+
+비동기 버전의 logError 콜백은 비동기버전의 try/except 블록의 except파트에 해당한다. processPage콜백은 else에 조건없는 finishProcessing 콜백은 finally에 해당한다.
+
+동기버전은 try/except 블록의 유용성에 힘입어 logError와 processPage 중 하나만 정확히 호출하고 finishProcessing은 항상 호출된다. 비동기버전은 실패 또는 성공의 경우에 호출되는 콜백 체인을 적절히 구성할 책임을 프로그래머에게 떠넘긴다. 에러상태라 할지라도 finishProcessing이 processPage또는 logError의 콜백 체인에 포함되지 않는다면 reactor는 절대 멈추지 않을것이고 프로그램은 영원히 실행된다.
+
+이 간단한 예제는 초창기 Twisted의 개발기간 동안의 복잡성 좌절에 대한 힌트이다. Twisted는 이 복잡성에 대해 Deferred라는 객체를 만들어냄으로써 응답했다.
+
+### Deferreds
 
