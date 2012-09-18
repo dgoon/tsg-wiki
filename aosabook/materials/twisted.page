@@ -339,3 +339,11 @@ echoService = internet.TCPServer(8000, EchoFactory())
 echoService.setServiceParent(application)
 ~~~
 
+#### twistd
+twisted는 Twisted application을 배포하기위한 이식성 있는 유틸리티이다. 이것은 TAC파일을 실행하고 application의 시작과 종료를 제어한다. Twisted의 네트워크 프로그래밍에 대한 batteries-included 접근법의 하나로 twisted는 daemonizing the application, the location of log files, dropping privileges, running in a chroot, running unter a non-default reactor, running the application under a profiler와 같은 다양하고 유용한 설정 플래그를 제공한다.
+
+이제 echo server Application을 다음과 같이 실행할 수 있다.
+
+~~~
+$ twistd -y echo_server.tac
+~~~
