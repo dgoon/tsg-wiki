@@ -114,6 +114,62 @@ Git은 최초 Linus가 작성한 방식, 그리고 리눅스 커뮤니티에서 
 
 ### 3단콤보 저장구조
 
+#### 저장소 생성
+
+git이 데이터를 어떻게 구조화하여 저장하는가를 보기 위해 저장소를 만들고 초기화된 저장소가 어떤 구조를 가지는지를 살펴보겠다.
+
+$ mkdir my-repo
+$ cd my-repo
+$ git init
+
+이렇게 3줄이면 **my-repo** 라는 이름의 git 저장소가 만들어졌다. my-repo 라는 디렉토리는 *비어 있는*, 또한 *초기화된* git 저장소가 되었다. 여러가지 git 명령어를 사용하여 이렇게 새로 생성한 저장소에 커밋, 태그, 브랜치 생성을 하거나 다른 저장소와 통신을 할 수 있다.
+
+//git init// 으로 초기화한 후에 그냥 ls 를 하면 아무것도 보이지 않는다. ls **-a** 옵션을 주면 .git 이라는 이름의 숨은 디렉토리를 하나 볼 수 있는데, 이 숨은 디렉토리가 git 이 초기화를 위해 생성한 내용이다. .git 아래의 구조는 다음과 같다.
+
+my-repot/.git/HEAD
+             +config
+             +description
+             +hooks/applypatch-msg.sample
+             |      commit-msg.sample
+             |      post-commit.sample
+             |      post-receive.sample
+             |      post-update.sample
+             |      pre-applypatch.sample
+             |      pre-commit.sample
+             |      pre-rebase.sample
+             |      prepare-commit-msg.sample
+             |      update.sample
+             +info/exclude
+             +objects/info
+             |       +pack
+             +refs/heads
+                  +tags
+
+용도별로 구분해보자면,
+
++ Configuration: config, description, info/exclude 는 로컬 저장소의 설정값을 저장하고 있다
++ Hooks: hooks 디렉토리 아래의 파일들은 저장소에 특정 이벤트가 발생할 때 사용된다. 이름으로부터 쉽게 유추할 수 있다.
++ Staging: index 라는 이름의 파일이 있다. 초기 생성했을 때에는 존재하지 않지만, 저장소에 변화가 생기게 되면 커밋되기 전에 index 파일에 먼저 변경사항이 모이게 된다.
++ Object database: objects 아래에 실제 **로컬** 데이터 객체 및 객체에 대한 포인터들이 모여있다. 데이터 객체는 **한번 생성되면 변하지 않는다**.
++ Reference: refs 아래에는 **로컬 또는 원격** 브랜치, 태그, 헤드에 대한 포인터가 담겨 있다. 레퍼런스는 보통 태그나 커밋에 대한 포인터인데, Object database 밖에 있는 이유는 저장소에 작업 내용이 계속 추가되면서 지속적으로 가리키는 내용이 계속해서 **변하기** 대문이다. 특별히 레퍼런스가 다른 레퍼런스를 가리키는 경우도 있다. HEAD 레퍼런스같은 경우가 그 한 예다.
+
+#### 1단: 저장소(Repository)
+
+이렇게 생성된 .git 디렉토리가 바로 git 이 관리하는 **저장소(repository)** 이다.
+
+#### 2단: 작업 공간(Working directory)
+
+.git 을 포함하는 상위 디렉토리(my_repo)가 작업 공간이다. 이 곳에 현재 작업중인 내용들이 들어있다. 경우에 따라서는 작업 공간 없이 저장소*만* 필요한 경우도 있는데, 저장소를 생성할 때 *git init --bare* 와 같이 **--bare** 명령어를 주면 작업공간을 남겨두지 않고 .git 에 들어갈 내용을 현재 위치한 곳이 생성해 버린다.
+
+#### 3단: 준비 영역(Staging area)
+
+저장소와 작업 공간 사이를 오가기 위한 통로가 필요하다. 위에 잠깐 언급되었듯이 .git/index 이 준비 영역의 내용을 들고 있다. 정확히는 작업 공간과 **로컬** 저장소 사이의 변화를 임시 저장하는 곳이므로, --bare 옵션이 붙어서 작업공간이 마련되지 않은 경우 준비 영역도 없다. 또한 사용자에 의한 작업 공간의 변경사항을 들고 있는 영역이므로 작업 공간이 사용자가 아니라 git 에 의해 수정되는 경우 유실될 수 있다. 이런 경우 git 은 경고나 에러 메시지를 보여준다.
+
+정리하면, 내용의 변경이 일어나는 방향은 아래와 같다.
+
+...  그림 그려 넣을것 ...
+
+
 ### Object database
 
 ### 작업 가지(branch) & 가지잇기(merge)
