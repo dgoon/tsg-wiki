@@ -2,9 +2,33 @@
 title: Bash @ Aosabook
 ...
 
+
+# 주절주절
+
+AOSA의 Bash 부분을 쓴 사람은 현재 Bash의 maintainer인 쳇 레미씨이다.
+
+## 히스토리
+
+위키피디아에 나온 Bash의 역사를 살펴보면 1988년 1월 10일 부터 브라이언 폭스씨가 코딩을 하기 시작했다고. 스톨만 아저씨와 자유 소프트웨어 재단은 free shell 하나는 있어야지 않겠냐며 돈을 모아 FSF 직원으로 폭스씨를 고용, 1989년 6월 7일 bash 베타 버전을 릴리즈함. 그 뒤로도 계속 maintainer로 일하다가 FSF에서 폭스씨가 뭔가 하는 일이 없다고 느꼈는지 해고하고(Fox released Bash as a beta, version .99, on June 7, 1989 and remained the primary maintainer until sometime between mid-1992 and mid-1994, when he was laid off from FSF...), 1990년 부터 초창기 부터 contributor로 활동한 쳇 레미씨가 maintainer를 맡게 됨.
+
+
+
+
 # Bash
 
 * An acronym for Bourne-Again SHell
+
+# Linkes
+
+* [Official site for the GNU Bourne Again SHell](http://www.gnu.org/software/bash/)
+* [Bash project page](http://savannah.gnu.org/projects/bash/)
+* [Bash Git Repository](http://savannah.gnu.org/git/?group=bash)
+* [What's GNU: Bash - The GNU Shell](http://www.linuxjournal.com/article/2800)
+* [The A-Z of Programming Languages: BASH/Bourne-Again Shell](http://www.computerworld.com.au/article/222764/a-z_programming_languages_bash_bourne-again_shell)
+
+~~~
+    git clone git://git.savannah.gnu.org/bash.git
+~~~
 
 
 # Full Text
