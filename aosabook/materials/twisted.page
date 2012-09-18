@@ -272,4 +272,4 @@ reactor.connectTCP("localhost", 8000, EchoFactory())
 reactor.run
 ~~~
 
-server 스크립트를 실행하면 8000포트를 listening하는 TCP server가 시작한다. 서버는 echo 프로토콜을 사용하고 TCP transport를 통해 데이터를 내보낸다. client를 실행하면 server와의 TCP 연결을 맺고 서버의 응답을 출력하고 연결을 닫고 reactor를 종료한다. Factory는 양측에 필요한
+server 스크립트를 실행하면 8000포트를 listening하는 TCP server가 시작한다. 서버는 echo 프로토콜을 사용하고 TCP transport를 통해 데이터를 내보낸다. client를 실행하면 server와의 TCP 연결을 맺고 서버의 응답을 출력하고 연결을 닫고 reactor를 종료한다. Factory는 양측에 필요한 인스턴스를 생성하는데 사용된다. 통신은 양측에서 비동기이다; connectTCP는 reactor에 socket에 데이터가 도착했을 때 호출할 callbacks를 등록하는 일을 한다.
