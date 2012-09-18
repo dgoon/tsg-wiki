@@ -273,3 +273,36 @@ reactor.run
 ~~~
 
 server 스크립트를 실행하면 8000포트를 listening하는 TCP server가 시작한다. 서버는 echo 프로토콜을 사용하고 TCP transport를 통해 데이터를 내보낸다. client를 실행하면 server와의 TCP 연결을 맺고 서버의 응답을 출력하고 연결을 닫고 reactor를 종료한다. Factory는 양측에 필요한 인스턴스를 생성하는데 사용된다. 통신은 양측에서 비동기이다; connectTCP는 reactor에 socket에 데이터가 도착했을 때 호출할 callbacks를 등록하는 일을 한다.
+
+### Applications
+Twisted는 확장성과 이식성이 있는 네트워크 서버 및 클라이언트를 제작하기 위한 엔진이다. 표준적인 형태의 제품환경에서 배포하는 일을 편리하게 하는 것은 이러한 플랫폼을 널리 적용하는데 중요한 요소이다.
+이러한 이유로 Twisted는 Twisted application infrastructure를 개발하였다. 이것은 재사용 및 설정 가능한 Twisted application의 배포 방법이다. 이것은 작동 방식을 제어하기 위해 이미 존재하는 툴인 daemonization, logging, custom reactor, profiling code 등을 application이 후킹하는 방법으로 프로그래머에게 보일러플레이트 코드를 피하게 해 준다.
+
+Application infrastructure는 4개의 주요 파트로 이루어져 있다:
+* Services
+* Applications
+* Configuration management
+* Twisted command-line utility
+
+이 infrastructure의 예를 들기 위해 이전 장의 echo server를 Application으로 변형 해 본다.
+
+#### Service
+IService 인터페이스를 제공하며 시작하고 종료할 수 있는 어떤것이든 Service라 할 수 있다. Twisted는 TCP, FTP, HTTP, SSH, DNS등의 프로토콜을 구현한 service와 함께 제공된다. 많은 서비스를 하나의 어플리케이션에 등록할 수 있다.
+IService 인터페이스의 핵심은 다음과 같다.
+
+startService
+:    서비스를 시작한다. 이것은 설정값을 읽거나 데이터베이스 연결을 설정하거나 포트를 listening할지도 모른다.
+stopService
+:    서비스를 종료한다. 이것은 상태를 디스크에 저장하거나 데이터베이스 연결을 종료하거나 포트의 linstening을 종료할지도 모른다.
+
+우리의 echo service는 TCP를 사용하기 때문에 IService interface를 구현하는 Twisted의 기본 TCPServer를 사용할 수 있다.
+
+#### Application
+Application은 전체 Twisted application을 대표하는 최 상위 서비스이다. 서비스들은 그 자신을 Application에 등록하고 twisted 배포 유틸리티는 
+Application
+An Application is the top-level service that represents the entire Twisted application. Services register themselves with an Application, and the twistd deployment utility described below searches for and runs Applications.
+
+We'll create an echo Application with which the echo Service can register.
+
+TAC Files
+When managing Twisted applications in a regular Python file, the developer is responsible for writing code to start and stop the reactor and to configure the application. Under the Twisted application infrastructure, protocol implementations live in a module, Services using those protocols are registered in a Twisted Application Configuration (TAC) file, and the reactor and configuration are managed by an external utility.
