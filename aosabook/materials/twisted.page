@@ -315,7 +315,8 @@ TCPServer Service의 인스턴스를 만든다. 이것은 EchoFactory가 사용�
 application code는 다음과 같을 것이다.
 
 echo.py
-~~~ { .python}
+
+~~~ {.python}
 from twisted.internet import protocol
 
 class Echo(protocol.Protocol):
@@ -328,7 +329,8 @@ class EchoFactory(protocol.Factory):
 ~~~
 
 echo_server.tac
-~~~ { .python}
+
+~~~ {.python}
 from twisted.application import internet, service
 from echo import EchoFactory
 
