@@ -298,11 +298,42 @@ stopService
 우리의 echo service는 TCP를 사용하기 때문에 IService interface를 구현하는 Twisted의 기본 TCPServer를 사용할 수 있다.
 
 #### Application
-Application은 전체 Twisted application을 대표하는 최 상위 서비스이다. 서비스들은 그 자신을 Application에 등록하고 twisted 배포 유틸리티는 
-Application
-An Application is the top-level service that represents the entire Twisted application. Services register themselves with an Application, and the twistd deployment utility described below searches for and runs Applications.
+Application은 전체 Twisted application을 대표하는 최상위 서비스이다. 서비스들은 그 자신을 Application에 등록하고 twisted 배포 유틸리티가 Application을 검색하고 실행에 대한 설명을 제공한다.
 
-We'll create an echo Application with which the echo Service can register.
+이제 등록 가능한 echo Service인 echo Application을 만들어보자.
 
-TAC Files
-When managing Twisted applications in a regular Python file, the developer is responsible for writing code to start and stop the reactor and to configure the application. Under the Twisted application infrastructure, protocol implementations live in a module, Services using those protocols are registered in a Twisted Application Configuration (TAC) file, and the reactor and configuration are managed by an external utility.
+#### TAC Files
+Twisted application을 정규 python file에 관리하게되면 개발자는 reactor의 시작과 종료, application의 설정에 대한 코드를 작성해야 한다. Twisted infrastructure에서는 프로토콜은 모듈로써 존재하고 이러한 프로토콜을 사용한 Services는 Twisted Application Configuration(TAC) 파일에 등록되며 reactor와 configuration은 외부 유틸리티를 이용해 관리한다.
+
+아래의 간단한 알고리즘을 따르면 echo server를 echo application으로 바꿀 수 있다.
+
+echo server의 프로토콜 부분을 모듈로 만든다.
+TAC file의 내부는 다음과 같다.
+echo Application을 만든다.
+TCPServer Service의 인스턴스를 만든다. 이것은 EchoFactory가 사용할 것이고 Application에 등록된다.
+아래에서 이야기 하는 Twisted가 사용 할 reactor를 관리 할 코드를 작성한다.
+application code는 다음과 같을 것이다.
+
+echo.py
+~~~ {.python}
+from twisted.internet import protocol
+
+class Echo(protocol.Protocol):
+    def dataReceived(self, data):
+        self.transport.write(data)
+
+class EchoFactory(protocol.Factory):
+    def buildProtocol(self, addr):
+    return Echo()
+~~~
+
+echo_server.tac
+~~~ {.python}
+from twisted.application import internet, service
+from echo import EchoFactory
+
+application = service.Application("echo")
+echoService = internet.TCPServer(8000, EchoFactory())
+echoService.setServiceParent(application)
+~~~
+
