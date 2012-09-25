@@ -347,3 +347,26 @@ twisted는 Twisted application을 배포하기위한 이식성 있는 유틸리�
 ~~~
 $ twistd -y echo_server.tac
 ~~~
+
+twisted는 application의 daemonized instance를 시작하고 twisted.log에 로그를 작성한다. Application의 시작 후, 종료 전 로그는 다음과 같다.
+~~~
+2011-11-19 22:23:07-0500 [-] Log opened.
+2011-11-19 22:23:07-0500 [-] twistd 11.0.0 (/usr/bin/python 2.7.1) starting up.
+2011-11-19 22:23:07-0500 [-] reactor class: twisted.internet.selectreactor.SelectReactor.
+2011-11-19 22:23:07-0500 [-] echo.EchoFactory starting on 8000
+2011-11-19 22:23:07-0500 [-] Starting factory <echo.EchoFactory instance at 0x12d8670>
+2011-11-19 22:23:20-0500 [-] Received SIGTERM, shutting down.
+2011-11-19 22:23:20-0500 [-] (TCP Port 8000 Closed)
+2011-11-19 22:23:20-0500 [-] Stopping factory <echo.EchoFactory instance at 0x12d8670>
+2011-11-19 22:23:20-0500 [-] Main loop terminated.
+2011-11-19 22:23:20-0500 [-] Server Shut Down.
+~~~
+
+Twisted application infrastructure를 사용하는 서비스의 실행은 개발자에게 데몬화와 같은 공통 서비스 기능의 작성을 생략하도록 해 준다. 또한 application 배포를 위한 표준 명령줄 인터페이스를 생성한다.
+
+#### Plugins
+Plugin system은 Twisted application을 TAC 기반 시스템과 다른 방식으로 실행할 수 있는 방법이다. TAC system은 application configuration file에 있는 미리 정의된 서비스의 간단한 hierachies를 등록하는 쉬운 방법인 반면에, plugin system은 application의 명령줄 인터페이스를 확장하여 twisted utility의 subcommand로써 custom service를 등록하는 쉬운 방법이다.
+
+이 시스템의 사용법:
+안정되게 남아 있을 plugin API만 있으면 된다. 이것은 third-party 개발자가 software의 확장을 쉽게 해 준다.
+Plugin discoverability는 규칙으로 되어 있다. Plugins는 program이 처음 실행되거나, program이 매번 시작하거나 반복적을 실행시간에 대기하거나 program이 실행시간동안 새로운 plugin이 설치되었을때 발견하도록 시작된면 발견되고, 저장된다. Twisted plugin system을 사용하는 program을 확장하려면 IPlugin interface를 구현하는 객체를 생성하고 plugin system이 찾을수 있는 위치에 가져다 놓으면 된다.
