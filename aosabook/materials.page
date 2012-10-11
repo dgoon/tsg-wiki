@@ -1,11 +1,17 @@
 발표자료를 대강 모아보죠.
 
+# 준비 중인 발표
+
 * [LLVM](materials/llvm) by [dgoon](/member/dgoon)
 * [git](materials/git) by [dgoon](/member/dgoon)
 * [Bash](materials/bash) by [haru](/member/haru)
 * [Processing.js](materials/processing.js) by [haru](/member/haru)
-* [Twisted](materials/twisted) by [BILL](/member/BILL)
 * [FreeRTOS](materials/FreeRTOS) by [BILL](/member/BILL)
 * [Selenium WebDriver](materials/SeleniumWebDriver) by [pod](/member/pod)
 * [SQLAlchemy](materials/SQLAlchemy) by [pod](/member/pod)
+
+
+# 완료된 발표
+
+* [Twisted](materials/twisted) by [BILL](/member/BILL)
 * [SocialCalc](https://docs.google.com/presentation/d/1yhEzV_9KyQ8qbkIINXGP-_S5MxGpD2Bf0eiQrPwDyv4/edit#slide=id.g1fec16e0_1_105) by [gsong](/member/gsong)
