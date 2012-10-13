@@ -189,7 +189,7 @@ git checkout [branch]
 
 git 은 로컬 저장소의 내용을 저장하기 위해 4가지의 기본 객체 타입을 사용한다. 각 타입은 *type*, *size*, *content* 의 속성을 가지고 있다.
 
-1. Tree: 트리는 다른 트리나 Blob 을 내부에 가지고 있으며, 디렉토리를 나타낸다.
+1. Tree: 트리는 다른 트리나 Blob으로 연결된다. 직관적을 알 수 있듯, 트리 객체는 파일시스템의 디렉토리를 나타낸다.
 2. Blob: Blob은 하나의 파일을 나타내는 객체이다.
 3. Commit: 커밋은 해당 커밋의 **루트 트리**와 **여러개의 부모 커밋**을 가리키는 포인터 객체이다. 
 4. Tag: 태그는 이름을 가지고 있으며, 저장소 역사에 있는 특정 커밋을 가리키는 객체이다.
@@ -210,19 +210,57 @@ Object 를 기본 단위로 하여 DAG 으로 구성하는 git 의 방식은 del
 
 동일 파일이나 디렉토리를 가리키는 객체들이 압축될 때 git 은 마지막 버전을 그대로 넣고, 이전 버전들을 delta 로 저장한다. 이는 최근 파일일 수록 접근이 더 빈번할 것이라는 가정에서이며, 대체로 유효한 가정이다.
 
-Git이 느슨한(loost) 객체들을 묶는 작업은, 1. 알아서 자동으로, 2. remote push 하는 경우, 3. git gc 명령을 실행할 때 일어난다.
+Git이 느슨한(loose) 객체들을 묶는 작업은, 1. 알아서 자동으로, 2. remote push 하는 경우, 3. git gc 명령을 실행할 때 일어난다.
 
 자세한 설명은 [이곳](http://git-scm.com/book/en/Git-Internals-Packfiles) 에서 찾을 수 있다.
 
 ### 작업 가지(branching) && 가지 잇기(merging)
 
-Git 이 택한 이력 관리 및 저장 구조의 특성은 브랜치를 다루는 데에 특별히 큰 도움이 된다. Subversion 등의 선형 이력을 유지하는 VCS 들은 매 커밋마다 revision 숫자가 올라가고, 더 높은 revision 이 이전 버전을 덮어쓰게 된다. 이 경우 branch는 개념적으로만 존재하며, 단순히 디렉토리 구조로만 trunk 와 다른 branch 들을 구분하게 되며, revision 을 공유하게 된다. 따라서 디렉토리 디렉토리를 구성하는 방식이 매우 중요하지만, 이는 전적으로 사용자에게 맡겨지고 있다. 전통적인 subversion/cvs 에서의 디렉토리 구조는
+#### Branching
 
+Git 이 택한 이력 관리 및 저장 구조의 특성은 브랜치를 다루는 데에 특별히 큰 도움이 된다. Subversion 등의 선형 이력을 유지하는 VCS 들은 매 커밋마다 revision 숫자가 올라가고, 더 높은 revision 이 이전 버전을 덮어쓰게 된다. 이 경우 branch는 개념적으로만 존재하며 단순히 디렉토리 구조로만 trunk 와 다른 branch 들을 구분하게 된다. 사실상 브랜치건 뭐건 모두 같은 revision 을 공유하게 되는 것. 따라서 이 경우 디렉토리를 구성하는 방식이 매우 중요하지만, 이는 전적으로 사용자에게 맡겨지고 있다. 전통적인 subversion/cvs 에서의 디렉토리 구조는
+
+~~~ { }
 /trunk
 /branches/branch-1
          /branch-2
 /tags/tag-1
      /tag-2
+~~~
 
-이런 모양이며, branching이나 tagging 은 trunk 복사 후 커밋일 뿐이다. 당연히 코드베이스가 커지게 되면 branching/tagging 작업은 매우 느려진다. 가지 합병은 더 큰 일인데 가지의 내용을 trunk에 덮어쓴 후 충돌이 발생하는 부분을 일일이 손으로 고쳐주어야 한다. 더불어 특정 작업 가지의 수정사항이 trunk에 반영된 경우, 이 수정사항을 다른 브랜치에서 알 수 있는 방법이 없다.
+이런 모양이며, branching이나 tagging 은 trunk **디렉토리를 복사한 후에 커밋하는 작업일 뿐**이다. 당연히 코드베이스가 커지게 되면 branching/tagging 작업은 매우 느려진다. 가지 합병은 더 큰 일인데 가지의 내용을 trunk에 덮어쓴 후 충돌이 발생하는 부분을 일일이 손으로 고쳐주어야 한다. 더불어 특정 작업 가지의 수정사항이 trunk에 반영된 경우, 이 수정사항을 다른 브랜치에서 알 수 있는 방법이 없다.
 
+Git 의 경우 브랜치나 태그 생성이 매우 빠르다. 모든 브랜치에서 Object DAG 이 공유되고 있으며 각각 commit 의 스냅샷은 객체 레퍼런스들로 구성되기 때문에, **새 브랜치를 만드는 것 역시 특정 commit 에 대한 레퍼런스를 생성**하기만 하면 된다. 그리고 브랜치에 커밋을 하면 지금까지 설명한 대로 현재 commit 을 부모로 하는 새로운 자식 commit이 생성되고, 브랜치의 헤드레퍼런스가 새 commit 을 가리키기만 하면 된다. 이 과정을 간단히 그림으로 보면 아래와 같다. (Images from [http://git-scm.com/book/en/Git-Branching-Basic-Branching-and-Merging]())
+
+![1. master 만 존재하는 상태](/aosabook/materials/git/git-original.png)   
+
+![2. iss53 브랜치를 만들었다. 레퍼런스가 하나 생겼다!](/aosabook/materials/git/git-branch-iss53.png)  
+
+![3. iss53 에 C3를 커밋했다.](/aosabook/materials/git/git-commit-to-iss53.png)  
+
+#### Merging
+
+합병은 여러개의 커밋 객체를 모아 하나의 커밋 객체를 만드는 작업이다. 일반적으로 브랜치를 머지할 때에는 *두 브랜치의 현재 스냅샷* 과 *각 브랜치의 공통 선조* 를 찾아 3개의 커밋을 합병하여 새로운 커밋을 만든다. 커밋 객체에 중요한 것은 부모와 트리 객체이다.
+
+1. Parents: Target commits
+2. Root Tree: Merge each commits' root tree objects
+
+부모는 합병 대상이 되는 커밋들이며, 이는 자명하다. 새 Root tree 객체는 합병 대상의 커밋들이 각각 가지고 있는 root tree 객체들을 합쳐서 만든다. 위에 설명했듯, tree 객체는 **바뀐 부분이 있는 files/subtrees 를 가지는** 구조이다. root tree 는 모두 공통이므로 각 변화사항들이 어디에 위치해야 하는지는 명백하다. **동일 파일의 동일 위치**에 대한 수정사항이 겹치는 경우를 제외하면 merged root tree 객체를 자동으로 생성하여 새 커밋 객체에 붙일 수 있다.
+
+![1. master와 iss53이 각각 진행된 상태](/aosabook/materials/git/git-merge-before.png)  
+
+![2. master와 iss53을 머지하기 위해 재료가 될 커밋들을 골라냄](/aosabook/materials/git/git-merge-prepare.png)  
+
+동일 파일의 동일 위치에 대한 서로 다른 수정사항이 합병되는 경우 충돌(conflict)이 생기고, 이는 사람이 직접 수정해 주어야 한다. 이 경우 최종 커밋 생성이 마무리되지 않은 상태로 사용자에게 제어권이 넘어오게 되며, 충돌이 생긴 파일의 해당 위치에 두 브랜치의 각각 어떤 내용이 있었는지 구분되어 표시가 되어 있다. 이를 수정하여 직접 커밋을 하면 합병이 완료된다. 아래는 master 와 iss53 이 가진 각각의 수정사항에서 충돌이 생긴 경우의 예이다.
+
+~~~ { .html }
+<<<<<<< HEAD:index.html
+<div id="footer">contact : email.support@github.com</div>
+=======
+<div id="footer">
+  please contact us at support@github.com
+</div>
+>>>>>>> iss53:index.html
+~~~
+
+![3. 두 브랜치가 합병된 새 커밋이 생겨 iss53->master 머지 완료](/aosabook/materials/git/git-merge-done.png)  
