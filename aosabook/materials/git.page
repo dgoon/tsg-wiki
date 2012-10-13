@@ -264,3 +264,18 @@ Git 의 경우 브랜치나 태그 생성이 매우 빠르다. 모든 브랜치�
 ~~~
 
 ![3. 두 브랜치가 합병된 새 커밋이 생겨 iss53->master 머지 완료](/aosabook/materials/git/git-merge-done.png)  
+
+## 그래서 뭐가 중요해?
+
+1. 저장 구조
+    a. Working directory: 작업 공간
+    b. Staging area: 작업공간에 딸린 변경사항 저장소
+    c. Repository: 객체화되어 저장된 거대한 object storage. 가지, 태그 등은 이 거대 저장소의 한 부분에 대한 레퍼런스일 뿐이다.
+2. 객체 종류 및 구성
+    a. Tree = Directory
+    b. Blob = File
+    c. Commit = Parent commits + Tree
+    d. Tag = Reference to Commit
+3. History(Timeline): DAG of commits
+
+주저리 주저리 많은걸 써 놓았지만 결국 이거만 알면 됨.
