@@ -181,9 +181,9 @@ git checkout [branch]
   + add/rm: 파일의 추가/변경은 git add, 삭제는 git rm 을 통해야 **준비 영역**에 변화 내용이 반영된다. 특히 그냥 쉘의 rm 으로 작업공간을 수정하는 경우 귀찮은 문제가 생긴다. add/rm 명령은 **준비 영역** 만을 수정한다.
 
 
-정리하면, 내용의 변경이 일어나는 방향과, 이에 관련된 git 명령어는 아래와 같다.
+내용의 변경이 일어나는 방향과 이에 관련된 git 명령어 몇 가지를 대강 그림으로 표현하면 아래와 같다.
 
-...  그림 그려 넣을것 ...
+<img src="/aosabook/materials/git/git_diagram.png" width="640" alt="git-diagram"/>
 
 ### Object database
 
