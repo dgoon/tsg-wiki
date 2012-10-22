@@ -1,5 +1,14 @@
 # Processing.js
 
+## 번역
+
+(을 시도해 봅니다...)
+
+Originally developed by Ben Fry and Casey Reas, the Processing programming language started as an open source programming language (based on Java) to help the electronic arts and visual design communities learn the basics of computer programming in a visual context. Offering a highly simplified model for 2D and 3D graphics compared to most programming languages, it quickly became well-suited for a wide range of activities, from teaching programming through writing small visualisations to creating multi-wall art installations, and became able to perform a wide variety of tasks, from simply reading in a sequence of strings to acting as the de facto IDE for programming and operating the popular "Arduino" open source hardware prototyping boards. Continuing to gain popularity, Processing has firmly taken its place as an easy to learn, widely used programming language for all things visual, and so much more.
+
+원래 Ben Fry와 Casey Reas에 의해 개발된 프로세싱 프로그래밍 언어는 일렉트로닉 아트와 비쥬얼 디자인 커뮤니티가 비쥬얼 컨텍스트 내에서 기본적인 컴퓨터 프로그래밍을 배우는 것을 돕기 위한 (자바 기반의) 오픈 소스 프로그래밍 언어로 시작되었다. 대부분의 프로그래밍 언어들과 비교되는 2D와 3D 그래픽스를 위한 매우 단순화된 모델을 제공한 것은, 그것이 광범위한 활동(작은 비쥬얼라이제이션을 작성하는 것을 통해 프로그래밍을 가르치는 것 부터 multi-wall art installations을 창조하는 것까지)을 위해 빠르게 잘 적용되었고, 다양한 여러가지 작업(간단히 문자열들의 배열를 읽는 것에서 부터 대중적인 아두이노 오픈 소스 하드웨어 프로토타이핑 보드를 프로그래밍하고 구동하기 위한 거의 표준의 IDE로써 동작하는 것까지)을 수행할 수 있게 되었다. 계속 인기를 얻고 있는 프로세싱은 배우기 쉽고, 모든 보여지는 것과 그 이상의 것을 위한 널리 사용되는 프로그래밍 언어로써 그 자리를 확고히 하고 있다.
+
+
 ## Links
 
 (일단 링크 수집...)
