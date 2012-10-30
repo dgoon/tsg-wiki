@@ -13,3 +13,12 @@ FreeRTOS는 활발히 개발중이고 Richard Barry가 2002년부터 시작했�
 만약 이 내용이 처음으로 접하는 운영체제 내부에 대한 이야기라면 OS의 작동에 대한 기본을 배울것이라 기대한다. FreeRTOS는 Windows, Linux, OS X 에 비해 상대적으로 간단하지만 모든 운영체제는 유사한 형태와 목표를 공유한다. 따라서 어떤 운영체제를 살펴봐도 유익하고 흥미로울것이다.
 
 #What's "Embedded" and "Real-Time"?
+
+임베디드와 리얼타임은 사람마다 다르게 정의할 수 있기때문에 FreeRTOS의 방식으로 정의 해 보자.
+
+임베디드 시스템은 TV 리모컨의 시스템, 자동차 GPS, 디지털 시계, 심박동기와 같이 제한된 작업만 수행하도록 디자인된 컴퓨터 시스템이다. 임베디드 시스템은 일반적으로 범용 컴퓨터시스템보다 작고 느리며 저렴하다. 일반적인 저급 임베디드 시스템은 25MHz로 작동하는 8비트 CPU, 수 KB의 램, 32KB정도의 플래쉬 메모리로 구성된다. 상급 임베디드 시스템은 750MHz로 작동하는 32비트 CPU와 GB의 램, 수 GB의 플래쉬 메모리로 구성된다.
+
+
+Real-time systems are designed to do something within a certain amount of time; they guarantee that stuff happens when it's supposed to.
+
+A pacemaker is an excellent example of a real-time embedded system. A pacemaker must contract the heart muscle at the right time to keep you alive; it can't be too busy to respond in time. Pacemakers and other real-time embedded systems are carefully designed to run their tasks on time, every time.
