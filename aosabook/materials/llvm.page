@@ -1,0 +1,46 @@
+LLVM
+
+* written in c++
+
+Compiler design
+    Three phase: Frontend -> Optimizer -> Backend
+    What's the strength of three-phase design?
+    Success stories:
+        Java and .NET virtual machines
+        Translate input source code into C
+        GCC
+    Why one more?
+
+LLVM IR
+    Ref: http://llvm.org/docs/LangRef.html
+    LLVM IR is a low-level RISC-like virtual instructino set.
+    Like most RISC instruction sets:
+        * Support leniar sequence of simple instructions: add, sub, compare and branch
+        * Three-address form
+        * Support labels
+    Unlike most RISC instruction sets:
+        * Strongly typed with a simple type system
+        * Some details of the machine are abstracted
+        * Uses an infinite set of temporaries named with a % character
+    Defined in three isomorphic form:
+        * Textual (.ll)
+        * In-memory structure
+        * Bitcode (.bc)
+        * llvm-as: .ll -> .bc
+        * llvm-dis: .bc -> .ll
+    Intermediate representation can be a 'perfect world' for the compiler optimizer
+    Should be easy for a frontend to generate
+    Should be expressive enough to allow important optimizations to be performed for real targets
+
+
+Three-phase
+
+    * Frontend: Parsing, validating and diagnosing erros. Then traslate parsed code into LLVM IR
+    * Optimizer: Takes LLVM IR and write out LLVM IR.
+    * Code generator: Convert LLVM IR into machine code
+    Looks like pipelining, and it really is.
+
+
+    * LLVM IR is complete code representation
+    * LLVM is a collection of libraries
+
