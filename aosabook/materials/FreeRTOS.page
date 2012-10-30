@@ -18,7 +18,7 @@ FreeRTOS는 활발히 개발중이고 Richard Barry가 2002년부터 시작했�
 
 임베디드 시스템은 TV 리모컨의 시스템, 자동차 GPS, 디지털 시계, 심박동기와 같이 제한된 작업만 수행하도록 디자인된 컴퓨터 시스템이다. 임베디드 시스템은 일반적으로 범용 컴퓨터시스템보다 작고 느리며 저렴하다. 일반적인 저급 임베디드 시스템은 25MHz로 작동하는 8비트 CPU, 수 KB의 램, 32KB정도의 플래쉬 메모리로 구성된다. 상급 임베디드 시스템은 750MHz로 작동하는 32비트 CPU와 GB의 램, 수 GB의 플래쉬 메모리로 구성된다.
 
+리얼타임 시스템은 어떤 일을 정해진 시간내에 수행하도록 디자인된다. 제때 일을 수행함을 보장하는 것이다.
 
-Real-time systems are designed to do something within a certain amount of time; they guarantee that stuff happens when it's supposed to.
+심장박동기는 리얼타임 임베디드 시스템의 좋은 예이다. 심장박동기는 당신의 생명을 유지하기 위해 심장 근육을 제시간에 수축시켜야 한다. 이것은 제시간에 응답하지 못할만큼 바빠서는 안된다. 심장박동기와 같은 리얼타임 임베디드 시스템들은 작업을 매번 제시간에 실행하도록 세심히 디자인된다.
 
-A pacemaker is an excellent example of a real-time embedded system. A pacemaker must contract the heart muscle at the right time to keep you alive; it can't be too busy to respond in time. Pacemakers and other real-time embedded systems are carefully designed to run their tasks on time, every time.
