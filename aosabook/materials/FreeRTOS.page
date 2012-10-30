@@ -22,3 +22,17 @@ FreeRTOS는 활발히 개발중이고 Richard Barry가 2002년부터 시작했�
 
 심장박동기는 리얼타임 임베디드 시스템의 좋은 예이다. 심장박동기는 당신의 생명을 유지하기 위해 심장 근육을 제시간에 수축시켜야 한다. 이것은 제시간에 응답하지 못할만큼 바빠서는 안된다. 심장박동기와 같은 리얼타임 임베디드 시스템들은 작업을 매번 제시간에 실행하도록 세심히 디자인된다.
 
+#Architecture Overview
+FreeRTOS는 상대적으로 작은 애플리케이션이다. FreeRTOS의 최소한의 핵심 부분은 세 개의 .c 파일과 약간의 헤더파일로 구성되며 빈 라인과 주석 포함해 9000라인 정도이다. 일반적인 바이너리 코드 이미지는 10KB보자 작다.
+
+FreeRTOS의 코드는 세 부분으로 나누어볼 수 있다 : tasks, communication, hardware interfacing
+
+- Tasks: FreeRTOS 코드의 거의 절반은 많은 운영체제의 핵심 문제를 다룬다. 바로 tasks!. Task는 우선순위가 주어진 사용자 정의 C 함수이다. tasks.c/tasks.h는 생성, 스케쥴링, 관리와 관련된 힘든 일들을 담당한다.
+
+- Communication: Tasks들은 좋지만 이들이 서로 통신한다면 더 좋다! FreeRTOS의 두번째 일인 communication에 대해 이야기하자. FreeRTOS 핵심 코드의 약 40%는 communication과 관련되어 있다.
+
+
+
+Communication: Tasks are good, but tasks that can communicate with each other are even better! Which brings us to the second FreeRTOS job: communication. About 40% of FreeRTOS's core code deals with communication. queue.c and queue.h handle FreeRTOS communication. Tasks and interrupts use queues to send data to each other and to signal the use of critical resources using semaphores and mutexes.
+
+The Hardware Whisperer: The approximately 9000 lines of code that make up the base of FreeRTOS are hardware-independent; the same code runs whether FreeRTOS is running on the humble 8051 or the newest, shiniest ARM core. About 6% of FreeRTOS's core code acts a shim between the hardware-independent FreeRTOS core and the hardware-dependent code. We'll discuss the hardware-dependent code in the next section.
