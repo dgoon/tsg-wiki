@@ -29,10 +29,7 @@ FreeRTOS의 코드는 세 부분으로 나누어볼 수 있다 : tasks, communic
 
 - Tasks: FreeRTOS 코드의 거의 절반은 많은 운영체제의 핵심 문제를 다룬다. 바로 tasks!. Task는 우선순위가 주어진 사용자 정의 C 함수이다. tasks.c/tasks.h는 생성, 스케쥴링, 관리와 관련된 힘든 일들을 담당한다.
 
-- Communication: Tasks들은 좋지만 이들이 서로 통신한다면 더 좋다! FreeRTOS의 두번째 일인 communication에 대해 이야기하자. FreeRTOS 핵심 코드의 약 40%는 communication과 관련되어 있다.
+- Communication: Tasks들은 좋지만 이들이 서로 통신한다면 더 좋다! FreeRTOS의 두번째 일인 communication에 대해 이야기하자. FreeRTOS 핵심 코드의 약 40%는 communication과 관련되어 있다. queue.c와 queue.h는 FreeRTOS의 통신을 담당한다. Tasks와 인터럽트들은 각자 데이터 전달을 위해 queues를 사용하고 세마포어와 뮤텍스를 이용하여 독점적인 자원 사용을 알린다.
 
+- The Hardware Whisperer :  FreeRTOS를 구성하는 약 9000줄의 코드는 하드웨어 독립적이다. FreeRTOS를 실행하는 CPU가 누추한 8051이건 상콤한 ARM core건 같은 코드가 실행된다. 약 6%의 FreeRTOS의 코드가 하드웨어 독립적인 부분과 하드웨어 의존적인 부분의 틈을 매우는 역할을 한다. 다음 섹션에서 하드웨어 의존적인 부분에 대해 이야기 할 것이다.
 
-
-Communication: Tasks are good, but tasks that can communicate with each other are even better! Which brings us to the second FreeRTOS job: communication. About 40% of FreeRTOS's core code deals with communication. queue.c and queue.h handle FreeRTOS communication. Tasks and interrupts use queues to send data to each other and to signal the use of critical resources using semaphores and mutexes.
-
-The Hardware Whisperer: The approximately 9000 lines of code that make up the base of FreeRTOS are hardware-independent; the same code runs whether FreeRTOS is running on the humble 8051 or the newest, shiniest ARM core. About 6% of FreeRTOS's core code acts a shim between the hardware-independent FreeRTOS core and the hardware-dependent code. We'll discuss the hardware-dependent code in the next section.
