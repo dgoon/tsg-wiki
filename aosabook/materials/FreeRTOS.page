@@ -55,4 +55,11 @@ FreeRTOS는 디자인부터 많은 부분이 설정가능하도록 되어 있다
 
 하드웨어 의존 코드는 각 컴파일러 툴체인 및 CPU 아키텍쳐를 위한 파일에 분리되어 있다. 예를 들어, ARM Cortex-M3와 IAR compiler를 사용중이라면 하드웨어 의존 코드는 FreeRTOS/Source/portable/IAR/ARM_CM3 디렉토리에 있을것이다. portmacro.h는 모든 하드웨어 종속 기능을 선언하고 있지만, port.c와 portasm.c에 실제 하드웨어 의존  코드가 구현되어 있다. 하드웨어 독립적인 헤더 파일 portable.h는 컴파일 할 때 올바른 portmacro.h를 #include한다. FreeRTOS는 portmacro.h에 #define으로 선언되어 있는 하드웨어 종속 함수를 호출한다.
 
-FreeRTOS가 하드웨어 종속 함수를 호출하는 방법을 한 번 보자. 하드웨어 독립적인 파일인 tasks.c는 종종 선점을 막기 위해 cretical section에 진입 할 필요가 있다. 
+FreeRTOS가 하드웨어 종속 함수를 호출하는 방법을 한 번 보자. 하드웨어 독립적인 파일인 tasks.c는 종종 선점을 막기 위해 cretical section에 진입 할 필요가 있다. critical section진입 방법은 아키텍쳐 마다 다르고 하드웨어 독립적인 tasks.c는 하드웨어 종속적인 세부사항을 알고싶지 않다. 따라서 tasks.c는 전역 매크로인 portENTER_CRITICAL()을 호출하고, 어떻게 동작하는지는 기꺼이 모른체 한다. ARM Cortex-M3아키텍쳐와 IAR 컴파일러를 쓴다고 가정하면 FreeRTOS는 portENTER_CRITICAL()이 정의된 FreeRTOS/Source/portable/IAR/ARM_CM3/portmacro.h와 함께 빌드 된다. 다음과 같다.
+
+~~~ {.c}
+#define portENTER_CRITICAL()    vPortEnterCritical()
+~~~
+
+vPortEnterCritical()은 실제로 FreeRTOS/Source/portable/IAR/ARM_CM3/port.c에 정의되어 있다. port.c는 하드웨어 종속적이고 IAR 컴파일러와 Cortex-M3칩을 이해하는 코드를 포함하고 있다. vPortEnterCritical()은 하드웨어 종속적인 방법으로 critical section에 진입하고 하드웨어 독립적인 tasks.c로 리턴한다.
+
