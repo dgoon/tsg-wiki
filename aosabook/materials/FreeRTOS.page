@@ -63,3 +63,17 @@ FreeRTOS가 하드웨어 종속 함수를 호출하는 방법을 한 번 보자.
 
 vPortEnterCritical()은 실제로 FreeRTOS/Source/portable/IAR/ARM_CM3/port.c에 정의되어 있다. port.c는 하드웨어 종속적이고 IAR 컴파일러와 Cortex-M3칩을 이해하는 코드를 포함하고 있다. vPortEnterCritical()은 하드웨어 종속적인 방법으로 critical section에 진입하고 하드웨어 독립적인 tasks.c로 리턴한다.
 
+portmacro.h파일은 아키텍쳐의 기본 데이터 형식을 정의한다. IAR 컴파일러와 Cortex-M3칩의 경우 basic integer variables, pointers, the system timer tick data type이 다음과 같이 정의되어 있다.
+
+~~~ {.c}
+#define portBASE_TYPE  long              // Basic integer variable type
+#define portSTACK_TYPE unsigned long     // Pointers to memory locations
+typedef unsigned portLONG portTickType;  // The system timer tick type
+~~~
+
+이 #define을 이용한 데이터 형식과 함수의 얇은 계층은 복잡해 보이지만 이것은 하드웨어 종속 코드만 수정하고 재 컴파일하여 전혀 다른 시스템용 FreeRTOS를 만들어준다. 그리고 만약 현재 지원하지않는 아키텍쳐용 FreeRTOS를 제작할 경우, 하드웨어 종속적인부분에 비해 훨씬 작은 하드웨어 종속적인 부분만 구현하면 된다.
+
+이상과 같이 FreeRTOS는 하드웨어 종속적인 부분을 C 전처리기 #define 매크로를 이용해 구현 한다. FreeRTOS는 #define을 많은 양의 하드웨어 독립적인 코드에 사용하기도 한다. 임베디드 시스템용이 아닌 어플리케이션에서는 이렇게 #define을 자주 사용하는것은 씻을 수 없는 죄악이지만 많은 소규모의 임베디드시스템에서는 함수 호출의 오버헤드가 더 큰 죄악이다.
+
+# Scheduling Tasks: A Quick Overview
+## Task Priorities and the Ready List
