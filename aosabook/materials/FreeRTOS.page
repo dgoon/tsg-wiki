@@ -23,7 +23,7 @@ FreeRTOS는 활발히 개발중이고 Richard Barry가 2002년부터 시작했�
 심장박동기는 리얼타임 임베디드 시스템의 좋은 예이다. 심장박동기는 당신의 생명을 유지하기 위해 심장 근육을 제시간에 수축시켜야 한다. 이것은 제시간에 응답하지 못할만큼 바빠서는 안된다. 심장박동기와 같은 리얼타임 임베디드 시스템들은 작업을 매번 제시간에 실행하도록 세심히 디자인된다.
 
 #Architecture Overview
-FreeRTOS는 상대적으로 작은 애플리케이션이다. FreeRTOS의 최소한의 핵심 부분은 세 개의 .c 파일과 약간의 헤더파일로 구성되며 빈 라인과 주석 포함해 9000라인 정도이다. 일반적인 바이너리 코드 이미지는 10KB보자 작다.
+FreeRTOS는 상대적으로 작은 애플리케이션이다. FreeRTOS의 최소한의 핵심 부분은 세 개의 .c 파일과 약간의 헤더파일로 구성되며 빈 라인과 주석 포함해 9000라인 정도이다. 일반적인 바이너리 코드 이미지는 10KB보다 작다.
 
 FreeRTOS의 코드는 세 부분으로 나누어볼 수 있다 : tasks, communication, hardware interfacing
 
@@ -33,3 +33,26 @@ FreeRTOS의 코드는 세 부분으로 나누어볼 수 있다 : tasks, communic
 
 - The Hardware Whisperer :  FreeRTOS를 구성하는 약 9000줄의 코드는 하드웨어 독립적이다. FreeRTOS를 실행하는 CPU가 누추한 8051이건 상콤한 ARM core건 같은 코드가 실행된다. 약 6%의 FreeRTOS의 코드가 하드웨어 독립적인 부분과 하드웨어 의존적인 부분의 틈을 매우는 역할을 한다. 다음 섹션에서 하드웨어 의존적인 부분에 대해 이야기 할 것이다.
 
+## Hardware Considerations
+FreeRTOS의 하드웨어 독립적인 부분은 하드웨어 의존적인 부분의 위에 놓여 있다. 하드웨어 의존적인 부분은 당신이 선택한 CPU가 무엇이건 제어 방법을 알고 있다. 그림 3.1은 FreeRTOS의 계층구조를 보여준다.
+
+![image](http://www.aosabook.org/images/freertos/freertos-figures-layers.png)
+그림 3.1 FreeRTOS의 소프트웨어 계층 구조
+
+FreeRTOS는 실행될 모든 하드웨어 독립/의존 코드를 포함하여 배포된다. 이것은 많은 컴파일러 (CodeWarrier, GCC, IAR, etc..)와 프로세서 아키텍쳐 (ARM7, ARM Cotex-M3, various PICs, Silicon Labs 8051, x86, etc.)를 지원한다. 자세한 정보는 FreeRTOS의 웹사이트를 참고하면된다.
+
+FreeRTOS는 디자인부터 많은 부분이 설정가능하도록 되어 있다. FreeRTOS는 몇몇의 tasks를 지원하는 single CPU의 헐벗은 RTOS부터 TCP/IP, 파일시스템, USB를 지원하는 고성능의 멀티코어 짐승까지 만들어 낼 수 있다.
+
+설정 옵선은 FreeRTOSConfig.h의 #define을 설정해서 지정 가능하다. Clock speed, heap size, mutexes, API subsets 등등의 많은 옵션들이 이 파일로 설정 가능하다. 아래에 maximum number of task priority levels, the CPU frequency, the system tick frequency, the minimal stack size, the total heap size를 설정하는 예제를 보인다.
+
+~~~ {.c}
+#define configMAX_PRIORITIES      ( ( unsigned portBASE_TYPE ) 5 )
+#define configCPU_CLOCK_HZ        ( 12000000UL )
+#define configTICK_RATE_HZ        ( ( portTickType ) 1000 )
+#define configMINIMAL_STACK_SIZE  ( ( unsigned short ) 100 )
+#define configTOTAL_HEAP_SIZE     ( ( size_t ) ( 4 * 1024 ) )
+~~~
+
+하드웨어 의존 코드는 각 컴파일러 툴체인 및 CPU 아키텍쳐를 위한 파일에 분리되어 있다. 예를 들어, ARM Cortex-M3와 IAR compiler를 사용중이라면 하드웨어 의존 코드는 FreeRTOS/Source/portable/IAR/ARM_CM3 디렉토리에 있을것이다. portmacro.h는 모든 하드웨어 종속 기능을 선언하고 있지만, port.c와 portasm.c에 실제 하드웨어 의존  코드가 구현되어 있다. 하드웨어 독립적인 헤더 파일 portable.h는 컴파일 할 때 올바른 portmacro.h를 #include한다. FreeRTOS는 portmacro.h에 #define으로 선언되어 있는 하드웨어 종속 함수를 호출한다.
+
+FreeRTOS가 하드웨어 종속 함수를 호출하는 방법을 한 번 보자. 하드웨어 독립적인 파일인 tasks.c는 종종 선점을 막기 위해 cretical section에 진입 할 필요가 있다. 
