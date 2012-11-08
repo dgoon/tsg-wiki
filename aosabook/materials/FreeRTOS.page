@@ -214,3 +214,33 @@ ARM Cortex-M3 프로세서는 task가 인터럽트되었을 때 레지스터를 
 
 # Lists
 
+tasks다음으로 가장 많이 쓰이는 FreeRTOS의 자료구조는 list이다. FreeRTOS는 이 list 구조를 스케쥴링을 위한 tasks 추적 및 queue구현에 사용한다.
+
+![image](http://www.aosabook.org/images/freertos/freertos-figures-full-ready-list.png)
+그림 3.2 Full view of FreeRTOS Ready List
+
+FreeRTOS는 몇몇의 흥미로운 내용이 추가된 일반적인 환형 이중 연결 리스트이다. 아래는 list element이다.
+
+~~~ {.c}
+struct xLIST_ITEM
+{
+  portTickType xItemValue;                   /* The value being listed.  In most cases
+                                                this is used to sort the list in 
+                                                descending order. */
+  volatile struct xLIST_ITEM * pxNext;       /* Pointer to the next xListItem in the 
+                                                list.  */
+  volatile struct xLIST_ITEM * pxPrevious;   /* Pointer to the previous xListItem in 
+                                                the list. */
+  void * pvOwner;                            /* Pointer to the object (normally a TCB)
+                                                that contains the list item.  There is
+                                                therefore a two-way link between the 
+                                                object containing the list item and 
+                                                the list item itself. */
+  void * pvContainer;                        /* Pointer to the list in which this list
+                                                item is placed (if any). */
+};
+~~~
+
+각 list element는 xItemValue라는 숫자를 가진다. 이것은 일반적으로 추적되는 task의 우선순위나 이벤트 스케쥴링을 위한 타이머 값이다. lists는 우선순위에 따른 순서로 보관된다. 이 말은 가장 높은 우선순위의 xItemValue(가장 큰 숫자)가 list의 맨 앞에 있고 가장 낮은 우선순위의  xItemValue(가장 작은 숫자)가 list의 맨 뒤에 있음을 의미한다.
+
+pxNext, pxPrevious 포인터는 일반적인 linked list의 포인터들과 같다. pvOwner는 list element의 주인을 가리킨다. 이것은 일반적으로 task의 TCB 객체를 가리킨다. pvOwner는 vTaskSwitchContext()에서 task switching을 빠르게 하기 위해 사용된다: 일단 pxReadyTaskLists[] 가장 우선쉬위 높은 task가 발견되면
