@@ -203,3 +203,14 @@ unsigned int *pxPortInitialiseStack( unsigned int *pxTopOfStack,
   return pxTopOfStack;
 }
 ~~~
+
+ARM Cortex-M3 프로세서는 task가 인터럽트되었을 때 레지스터를 스택에 푸쉬한다. pxPortInitialiseStack()은 task가 실제로 작동이 시작된 적이 없더라도 레지스터들이 푸쉬 되었던 것 처럼 스택을 고친다. ARM 레지스터인 xPSR, PC, LR, R0를 위해 알려진 값들이 스택에 저장된다. 남아 있는 R1 ~ R12 레지스터들은 최상위 스택 포인터를 아래로 내림으로써 그들을 위한 스텍 공간을 얻어내지만, 이 레지스터들을 위한 특별한 값이 스택에 저장되지는 않는다. ARM 아키텍쳐는 이 레지스터들은 리셋될 때의 값이 정의되지 않았다고 말하기 때문에, 프로그램은 알려진 값을 넣지 않는것이다.
+
+스택이 준비되면 task는 거의 실행 준비가 된 것이다. 하지만 먼저 FreeRTOS는 인터럽트를 꺼야한다: 우리는 지긋지긋한 ready list들과 기타 스케쥴러 구조체들에 둘러쌓이기 시작할 것이고, 우리가 모르는 사이에 이것들을 변경하기를 원치 않는다.
+
+만약 이것이 가장 첫 task라면, FreeRTOS는 스케쥴러의 task lists를 초기화 한다. FreeRTOS의 스케쥴러는 pxReadyTasksLists[]라는 ready list의 배열을 가지고 있다. 이것은 각각의 가능한 우선순위에 대하 하나씩의 리스트를 가진다. FreeRTOS는 tasks가 suspended, killed, delayed가 되었는지 추적하기 위한 별도의 리스트도 가지고 있다. 이것들고 이 때 초기화 된다.
+
+첫 번째 초기화를 하고 나면 새로운 task는 지정된 우선순위에 따른 ready list에 추가된다. 인터럽트는 다시 켜지고 새로운 task의 생성은 완료된다.
+
+# Lists
+
