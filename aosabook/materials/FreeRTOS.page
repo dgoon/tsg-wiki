@@ -78,11 +78,12 @@ typedef unsigned portLONG portTickType;  // The system timer tick type
 # Scheduling Tasks: A Quick Overview
 ## Task Priorities and the Ready List
 
-각 테스크는 
+각 테스크는 0~configMAX_PRIORITIES-1 사이의 사용자가 할당한 우선순위를 가진다. 예를 들어, 만약 configMAX_PRIORITIES가 5로 설정되어 있다면, FreeRTOS는 5개의 우선순위 레벨을 사용한다 : 0(가장 낮음), 1, 2, 3, 4(가장 높음).
 
-Each task has a user-assigned priority between 0 (the lowest priority) and the compile-time value of configMAX_PRIORITIES-1 (the highest priority). For instance, if configMAX_PRIORITIES is set to 5, then FreeRTOS will use 5 priority levels: 0 (lowest priority), 1, 2, 3, and 4 (highest priority).
+FreeRTOS는 현재 실행 준비 된 tasks를 추적하기 위해 "ready list"를 사용한다. 다음과 같은 task list로 ready list를 구현한다.
 
-FreeRTOS uses a "ready list" to keep track of all tasks that are currently ready to run. It implements the ready list as an array of task lists like this:
-
+~~~{.c}
 static xList pxReadyTasksLists[ configMAX_PRIORITIES ];  /* Prioritised ready tasks.  */
-pxReadyTasksLists[0] is a list of all ready priority 0 tasks, pxReadyTasksLists[1] is a list of all ready priority 1 tasks, and so on, all the way up to pxReadyTasksLists[configMAX_PRIORITIES-1].
+~~~
+
+pxReadyTasksLists[0]은 우선순위가 0인 모든 ready tasks의 list 이고, pxReadyTasksLists[1]은 우선순위가 1인 모든 ready tasks의 list이다. 이런식으로 pxReadyTasksList[configMAX_PRIORITIES-1]까지 존재 한다.
