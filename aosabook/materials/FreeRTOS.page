@@ -167,3 +167,39 @@ typedef struct tskTaskControlBlock
 } tskTCB;
 ~~~
 
+TCB는 스텍의 시작주소를 pxStack에 저장하고 스텍의 최 상위 주소를 pxTopOfStack에 저장한다. 또한, 스텍의 끝 주소를 pxEndOfStack에 저장하여 스텍 넘침을 체크한다. 스택이 아래쪽으로 넘치는 것 역시 pxTopOfStack과 pxStack을 비교하여 체크한다.
+
+TCB는 task의 초기 우선순위를 uxPriority와 uxBasePriority에 저장한다. Task는 생성될 때 우선순위가 주어지고, 이는 변경될 수 있다. 만약 FreeRTOS가 우선순위 상속을 구현하고 있으면 task가 임시적으로 상속된 우선순위로 변경되어 있는 동안 uxBasePriority를 원래 우선순위를 기억하는데 사용한다. (아래에서 뮤텍스에 관해 이야기 할 때 우선순위 상속에 대해 좀 더 이야기 할것이다.)
+
+각 task는 FreeRTOS의 다양한 scheduling list를 사용하기 위한 두 개의 list를 가지고 있다. task를 list에 넣을 때 FreeRTOS는 TCB에 포인터를 직접 넣지 앟는다. 대신에, FreeRTOS는 포인터를 TCB의 xGenericListItem또는 xEventListItem에 넣어둔다. 이 xListItem 변수들은 TCB에 단순히 포인터를 넣어두는 것 보다 FreeRTOS의 lists를 똑똑하게 한다. 다음에 list에 대해 이야기 할 때 이에대한 예를 볼 수 있다.
+
+task는 다음의 네 가지 상태를 가진다: running, ready to run, suspended, blocked. 당신은 각 task가 자신의 상태에대한 변수를 가질것이라고 기대하겠지만, 그렇지 않다. 대신에, FreeRTOS는 task를 적절한 list에 넣어둠으로써 task의 상태를 암시적으로 추적한다 이 list는 ready list, suspended list 등이다. 특정 list에 task가 소속된다는 것은 그 task의 상태를 나타내는것과 같다. Task의 상태를 변경하는 것은 그냥 하나의 list에서 다른 list로 옮기는 작업인 것이다.
+
+## Task Setup
+
+우리는 이미 pxReadyTasksLists를 사용해 task가 선택되고 스케쥴되는 방법에 대해 알아본 적이 있다. 이제는 task가 생성되는 방법을 알아보자. task는 xTaskCreate()가 호출되면 생성된다. FreeRTOS는 새로 TCB를 할당하고 이름, 우선순위 등의 task의 세부사항을 지정하고 사용자가 요청한 스택을 할당하고 TCB의 pxStack 멤버에 스택 메모리의 시작 주소를 저장한다.
+
+스택은 새 task가 이미 실행중이거나 문맥전환에 의해 인터럽트되어 있는지 살펴보기 위해 초기화된다. 이 방법은 스케쥴러가 새로 만든 task나 동작중인 task를 정확히 같은 방법으로 다룰 수 있게 해준다. 따라서 스케쥴러는 새로운 task를 위한 특별한 코드가 필요 없어 진다.
+
+task의 스택이 만들어지는 방법은 FreeRTOS가 실행되는 아키텍쳐에 따른  문맥전환에 의한 인터럽트와 비슷하다 다음의 ARM Cortex-M3 프로세서의 구현이 좋은 예이다.
+
+~~~ {.c}
+unsigned int *pxPortInitialiseStack( unsigned int *pxTopOfStack, 
+                                     pdTASK_CODE pxCode,
+                                     void *pvParameters )
+{
+  /* Simulate the stack frame as it would be created by a context switch interrupt. */
+  pxTopOfStack--; /* Offset added to account for the way the MCU uses the stack on 
+                     entry/exit of interrupts. */
+  *pxTopOfStack = portINITIAL_XPSR;  /* xPSR */
+  pxTopOfStack--;
+  *pxTopOfStack = ( portSTACK_TYPE ) pxCode;  /* PC */
+  pxTopOfStack--;
+  *pxTopOfStack = 0;  /* LR */
+  pxTopOfStack -= 5;  /* R12, R3, R2 and R1. */
+  *pxTopOfStack = ( portSTACK_TYPE ) pvParameters;  /* R0 */
+  pxTopOfStack -= 8;  /* R11, R10, R9, R8, R7, R6, R5 and R4. */
+  
+  return pxTopOfStack;
+}
+~~~
