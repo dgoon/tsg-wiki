@@ -94,13 +94,15 @@ FreeRTOS시스템의 심장박동을 system tick이라 부른다. FreeRTOS는 �
 
 ~~~{.c}
 /* Find the highest-priority queue that contains ready tasks. */
-while( listLIST_IS_EMPTY( &
+while( listLIST_IS_EMPTY( %amp( pxReadyTasksLists[ uxTopReadyPriority ] ) ) )
+{
+    configASSERT( uxTopReadyPriority );
     --uxTopReadyPriority;
 }
 
 /* listGET_OWNER_OF_NEXT_ENTRY walks through the list, so the tasks of the same 
 priority get an equal share of the processor time. */
-listGET_OWNER_OF_NEXT_ENTRY( pxCurrentTCB, &
+listGET_OWNER_OF_NEXT_ENTRY( pxCurrentTCB, %amp( pxReadyTasksLists[ uxTopReadyPriority ] ) );
 ~~~
 
 while loop가 실행되기 전에, uxTopReadyPriority는 가장 우선순위가 높은 ready task와 같거나 큰 값을 가지고 있음이 보장된다. while() loop는 uxTopReadyPriority애서 시작하여 pxReadyTasksLists[] 배열을 따라 내려가며 ready tasks중 가장 우선순위가 높은 것을 찾는다. 
