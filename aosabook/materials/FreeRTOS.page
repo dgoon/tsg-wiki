@@ -87,3 +87,20 @@ static xList pxReadyTasksLists[ configMAX_PRIORITIES ];  /* Prioritised ready ta
 ~~~
 
 pxReadyTasksLists[0]은 우선순위가 0인 모든 ready tasks의 list 이고, pxReadyTasksLists[1]은 우선순위가 1인 모든 ready tasks의 list이다. 이런식으로 pxReadyTasksList[configMAX_PRIORITIES-1]까지 존재 한다.
+
+## The System Tick
+
+FreeRTOS시스템의 심장박동을 system tick이라 부른다. FreeRTOS는 시스템이 주기적인 tick interrupt를 생성하도록 설정한다. 사용자는 일반적으로 millisecond 범위인 tick interrupt frequency를 설정할수 있다. tick interrupt가 발생 할 때 마다 vTaskSwitchContext()함수가 호출된다. vTaskSwitchContext()는 가장 우선순위가 높은 ready task를 선택한 뒤 pxCurrentTCB를 다음과 같이 설정 한다.
+
+~~~{.c}
+/* Find the highest-priority queue that contains ready tasks. */
+while( listLIST_IS_EMPTY( &
+    --uxTopReadyPriority;
+}
+
+/* listGET_OWNER_OF_NEXT_ENTRY walks through the list, so the tasks of the same 
+priority get an equal share of the processor time. */
+listGET_OWNER_OF_NEXT_ENTRY( pxCurrentTCB, &
+~~~
+
+while loop가 실행되기 전에, uxTopReadyPriority는 가장 우선순위가 높은 ready task와 같거나 큰 값을 가지고 있음이 보장된다. while() loop는 uxTopReadyPriority애서 시작하여 pxReadyTasksLists[] 배열을 따라 내려가며 ready tasks중 가장 우선순위가 높은 것을 찾는다. 
