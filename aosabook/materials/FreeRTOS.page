@@ -95,6 +95,7 @@ FreeRTOS시스템의 심장박동을 system tick이라 부른다. FreeRTOS는 �
 ~~~{.c}
 /* Find the highest-priority queue that contains ready tasks. */
 while( listLIST_IS_EMPTY( &
+    --uxTopReadyPriority;
 }
 
 /* listGET_OWNER_OF_NEXT_ENTRY walks through the list, so the tasks of the same 
