@@ -120,3 +120,50 @@ while loop가 실행되기 전에, uxTopReadyPriority는 가장 우선순위가 
 
 # Tasks
 
+Tasks의 실행과 운용은 모든 운영체제의 핵심 작업이다. 많은 운영체제들과 유사하게, FreeRTOS의 기본 작업 단위는 task이다. FreeRTOS는 각 task를 나타내기 위해 Task Control Block(TCB)를 사용한다.
+
+## Task Control Block (TCB)
+
+TCB는 tasks.c에 다음과 같이 정의되어 있다:
+
+~~~ {.c}
+typedef struct tskTaskControlBlock
+{
+  volatile portSTACK_TYPE *pxTopOfStack;                  /* Points to the location of
+                                                             the last item placed on 
+                                                             the tasks stack.  THIS 
+                                                             MUST BE THE FIRST MEMBER 
+                                                             OF THE STRUCT. */
+                                                         
+  xListItem    xGenericListItem;                          /* List item used to place 
+                                                             the TCB in ready and 
+                                                             blocked queues. */
+  xListItem    xEventListItem;                            /* List item used to place 
+                                                             the TCB in event lists.*/
+  unsigned portBASE_TYPE uxPriority;                      /* The priority of the task
+                                                             where 0 is the lowest 
+                                                             priority. */
+  portSTACK_TYPE *pxStack;                                /* Points to the start of 
+                                                             the stack. */
+  signed char    pcTaskName[ configMAX_TASK_NAME_LEN ];   /* Descriptive name given 
+                                                             to the task when created.
+                                                             Facilitates debugging 
+                                                             only. */
+
+  #if ( portSTACK_GROWTH > 0 )
+    portSTACK_TYPE *pxEndOfStack;                         /* Used for stack overflow 
+                                                             checking on architectures
+                                                             where the stack grows up
+                                                             from low memory. */
+  #endif
+
+  #if ( configUSE_MUTEXES == 1 )
+    unsigned portBASE_TYPE uxBasePriority;                /* The priority last 
+                                                             assigned to the task - 
+                                                             used by the priority 
+                                                             inheritance mechanism. */
+  #endif
+
+} tskTCB;
+~~~
+
