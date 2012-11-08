@@ -105,4 +105,18 @@ priority get an equal share of the processor time. */
 listGET_OWNER_OF_NEXT_ENTRY( pxCurrentTCB, %amp;( pxReadyTasksLists[ uxTopReadyPriority ] ) );
 ~~~
 
-while loop가 실행되기 전에, uxTopReadyPriority는 가장 우선순위가 높은 ready task와 같거나 큰 값을 가지고 있음이 보장된다. while() loop는 uxTopReadyPriority애서 시작하여 pxReadyTasksLists[] 배열을 따라 내려가며 ready tasks중 가장 우선순위가 높은 것을 찾는다. 
+while loop가 실행되기 전에, uxTopReadyPriority는 가장 우선순위가 높은 ready task와 같거나 큰 값을 가지고 있음이 보장된다. while() loop는 uxTopReadyPriority애서 시작하여 pxReadyTasksLists[] 배열을 따라 내려가며 ready tasks중 가장 우선순위가 높은 것을 찾는다. listGET_OWNER_OF_NEXT_ENTRY()는 우선순위 레벨의 ready list에서 다음의 ready task를 집어낸다.
+
+이제 pxCurrentTCB는 가장 우선순위가 높은 task를 가리키고, vTaskSwitchContext()가 리턴할 때 그 task를 실행하는 하드웨어 종속적인 코드를 시작한다.
+
+위의 아홉줄의 코드들은 FreeRTOS의 최고 핵심 부분이다. 이외의 8000+ FreeRTOS의 라인들은 이 아홉라인들이 가장 우선순위가 높은 task를 실행할 수 있도록 도와주는 역할을 하는것이다.
+
+그림 3.2는 ready list의 생김새를 대략적으로 보여준다. 이 예에는 세 개의 우선순위가 있는데 하나의 우선순위 0, 우선순위 1은 없고, 세 개의 우선순위 2의 tasks를 보여주고 있다. 이 그림은 정확하긴하지만 완전한건 아니다; 다음에 살펴볼 몇몇 세부사항을 빠트리고 있다.
+
+![image](http://www.aosabook.org/images/freertos/freertos-figures-basic-ready-list.png)
+그림 3.2 Basic view of FreeRTOS Ready List
+
+지금까지 대충 둘러봤으니 이제 세부사항을 살펴 볼 차례이다. 다음 절에서 세 개의 주요 FreeRTOS의 데이터 구조를 살펴 본다: tasks, lists, queues.
+
+# Tasks
+
