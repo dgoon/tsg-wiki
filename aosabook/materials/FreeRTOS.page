@@ -277,3 +277,49 @@ FreeRTOS는 빈번하게 다중의 for 또는 while loop 또는 함수에서 리
 
 ![image](http://www.aosabook.org/images/freertos/freertos-figures-full-ready-list-2.png)
 그림 3.4 Full view of FreeRTOS Ready List after a system timer tick
+
+vTaskSwitchContext()에서 완료되는 pxReadyTasksLists[]의 조작은 pxIndex가 사용되는 방법의 좋은 예이다. 우선순위 0인 하나의 우선순위만 있고 이 우선순위를 가진 세개의 tasks가 있다고 치면, 앞서 본 기본 ready list의 그림과 비슷하지만 이 예에서는 자료구조의 모든 필드들을 보여준다.
+
+그림 3.3 에 보이는 pxCurrentTCB는 현재 TaskB가 실행중임을 나타낸다. 다음번에 vTaskSwitchContext()가 실행되면, 이것은 listGET_OWNER_OF_NETX_ENTRY()를 호출하여 다음에 실행할 task를 얻는다. 이 함수는 pxIndex->pxNext를 사용하여 다음 task가 TaskC임을 알아내고 pxIndex를 TaskC의 리스트 엘리먼트를 가리키도록 한 다음 pxCurrentTCB를 TaskC의 TCB를 가리키도록 한다. 이러면 그림 3.4 와 같이 된다.
+
+각 struct xListItem 객체는 실제로 연관된 TCB의 xGenericListItem이다.
+
+# Queues
+
+FreeRTOS는 tasks들이 서로와 통신하고 동기화 할 방법으로 queue를 사용한다. Interrupt service routines (ISRs)도 역시 queue를 사용하여 통신하고 동기화 한다.
+
+기본적인 queue 자료구조는 다음과 같다:
+
+~~~ {.c}
+typedef struct QueueDefinition
+{
+  signed char *pcHead;                      /* Points to the beginning of the queue 
+                                               storage area. */
+  signed char *pcTail;                      /* Points to the byte at the end of the 
+                                               queue storage area. One more byte is 
+                                               allocated than necessary to store the 
+                                             queue items; this is used as a marker. */
+  signed char *pcWriteTo;                   /* Points to the free next place in the 
+                                               storage area. */
+  signed char *pcReadFrom;                  /* Points to the last place that a queued 
+                                               item was read from. */
+                                           
+  xList xTasksWaitingToSend;                /* List of tasks that are blocked waiting 
+                                               to post onto this queue.  Stored in 
+                                               priority order. */
+  xList xTasksWaitingToReceive;             /* List of tasks that are blocked waiting 
+                                               to read from this queue. Stored in 
+                                               priority order. */
+
+  volatile unsigned portBASE_TYPE uxMessagesWaiting;  /* The number of items currently
+                                                         in the queue. */
+  unsigned portBASE_TYPE uxLength;                    /* The length of the queue 
+                                                         defined as the number of 
+                                                         items it will hold, not the 
+                                                         number of bytes. */
+  unsigned portBASE_TYPE uxItemSize;                  /* The size of each items that 
+                                                         the queue will hold. */
+                                         
+} xQUEUE;
+~~~
+
