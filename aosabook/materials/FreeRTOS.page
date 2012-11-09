@@ -346,3 +346,7 @@ FreeRTOS는 xTasksWaitingToSend 리스트를 사용하여 queue에 입력중에 
 FreeRTOS는 tasks 상호간에 또는 내부적으로 통신을 위해 queue를 사용한다. FreeRTOS 세마포어와 뮤텍스를 구현하기 위해서도 queue를 사용한다.
 
 ### What's The Difference?
+
+뮤텍스나 세마포어나 비슷한것 같지만 다르다. FreeRTOS는 이들을 비슷한 방법으로 구현하지만, 다른 방식으로 사용한다. 어떻게 다르게 사용한단 말인가? 임베디드 시스템 구루인 마이클 바아아아는 이에대해 "Mutexes and Semaphores Demystified"에 잘 이야기 하고 있다.
+> 세마포어는 하나의 task가 다른 task에 signaling하는 데 쓰는 것이 올바른 사용법이다. mutex는 가지고, 반환하는 의미가 부여되기 때문에 이런 의도로  task는 공유자원 보호에 사용한다. 반면에 세마포어를 사용하는 tasks는 signal(FreeRTOS에서는 "send")하거나 wait(FreeRTOS에서는 "receive") 한다.
+
