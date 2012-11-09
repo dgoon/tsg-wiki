@@ -1,4 +1,50 @@
-LLVM
+---
+format: rst
+title: LLVM on AOSABOOK
+...
+
+  이 챕터는 LLVM 을 만들어온 디자인 결정사항들에 대해 이야기한다. LLVM은 어셈블러, 컴파일러, 디버거 등의 저수준 툴체인 셋을 아우르는 프로젝트이다. 기존 유닉스 시스템에서 쓰이던 툴과 호환되도록 디자인 되었다. "LLVM"은 원래 약자였지만(Low-Level Virtual Machine) 이제는 관련 프로젝트를 총괄하는 프로젝트 브랜드가 되었다. LLVM은 그 자체만의 기능 뿐 아니라 훌륭한 관련 도구들(CLang 같은...)로도 유명하지만, LLVM 을 다른 컴파일러들과 구분해주는 가장 큰 특징은 그 아키텍쳐에 있다.
+
+  2000년 12월에 처음 프로젝트가 시작되었을 때 부터, LLVM은 잘 정의된 인터페이스를 가진 **재사용 가능한 라이브러리 모음**이 되도록 디자인되었다. 당시에 오픈소스 프로그래밍 언어의 구현들은 보통 하나의 실행파일로 이루어진 특정 용도 전용으로 설계되었다. 예를 들어 정적인 컴파일러로부터 파서를 뽑아내서 정적분석이나 리팩토링을 위해 재사용하는 것은 매우 어려운 일이다. - GCC를 생각해보라! 반면 스크립트 언어들은 보다 큰 프로그램에 런타임/해석기를 내장하는 경우가 많은데, 보통 그 런타임은 하나의 거대한 코드덩어리로 그 일부를 재사용하는 것도 어려울 뿐더러 여러 언어 구현에 공유되는 경우도 거의 없다.
+
+  컴파일러 그 자체의 구성 이외에도, 인기있는 언어 구현체를 사용하는 커뮤니티는 보통 대단히 편파적이다. 구현체는 보통 전통적인 컴파일러(GCC, FreePascal같은...)를 제공하거나 혹은 인터프리터나 JIT(Just-In-Time) 컴파일러를 제공한다. 이 양쪽을 모두 지원하는 언어 구현체를 대단히 희귀하고, 있던 경우에도 이 양쪽 구현은 거의 코드를 공유하지 않았다.
+
+  지난 10년간, LLVM은 이런 구도를 상당히 많이 바꾸어 냈다. LLVM은 요즘 정적 컴파일러, 런타임 컴파일러 양쪽 전반에 걸쳐 폭넓게 사용되는 전반 기술이다. 또한, 여러개의 특수화된 전용 컴파일러를 대체하기도 했다. 예를 들면, 애플의 OpenGL 스택이나 어도비 After Effect의 이미지 프로세싱 라이브러리 같은 부분에 사용되었다. 마지막으로 LLVM은 새 제품을 만드는 데에도 많이 사용되는데, 아마 가장 잘 알려진 것은 OpenCL GPU 프로그래밍 언어와 런타임일 것이다.
+
+1. A Quick Introduction to Classical Compiler Design
+
+  - Implications of this Design
+
+2. Existing Language Implementation
+
+3. LLVM's Code Representation: LLVM IR
+
+  - Writing an LLVM IR Optimization
+
+4. LLVM's Implementation of Three-Phase Design
+
+  - LLVM IR is a Complete Code Representation
+
+  - LLVM IR is a Collection of Libraries
+
+5. Design of the Retargetable LLVM Code Generator
+
+  - LLVM Target Description Files
+
+6. Interesting Capabilities Provided by a Modular Design
+
+  - Choosing When and Where Each Phase Runs
+
+  - Unit Testing the Optimizer
+
+  - Automatic Test Case Reduction with BugPoint
+
+7. Retrospective and Future Directions
+
+
+
+
+
 
 * written in c++
 
