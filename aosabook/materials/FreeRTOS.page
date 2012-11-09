@@ -243,4 +243,22 @@ struct xLIST_ITEM
 
 각 list element는 xItemValue라는 숫자를 가진다. 이것은 일반적으로 추적되는 task의 우선순위나 이벤트 스케쥴링을 위한 타이머 값이다. lists는 우선순위에 따른 순서로 보관된다. 이 말은 가장 높은 우선순위의 xItemValue(가장 큰 숫자)가 list의 맨 앞에 있고 가장 낮은 우선순위의  xItemValue(가장 작은 숫자)가 list의 맨 뒤에 있음을 의미한다.
 
-pxNext, pxPrevious 포인터는 일반적인 linked list의 포인터들과 같다. pvOwner는 list element의 주인을 가리킨다. 이것은 일반적으로 task의 TCB 객체를 가리킨다. pvOwner는 vTaskSwitchContext()에서 task switching을 빠르게 하기 위해 사용된다: 일단 pxReadyTaskLists[] 가장 우선쉬위 높은 task가 발견되면
+pxNext, pxPrevious 포인터는 일반적인 linked list의 포인터들과 같다. pvOwner는 list element의 주인을 가리킨다. 이것은 일반적으로 task의 TCB 객체를 가리킨다. pvOwner는 vTaskSwitchContext()에서 task switching을 빠르게 하기 위해 사용된다: 일단 pxReadyTaskLists[] 가장 우선쉬위 높은 task의 리스트가 발견되면 그 리스트 엘리먼트의 pvOwner포인터가 스케쥴이 필요한 TCB로 바로 안내해 준다.
+
+pvContainer는 이 아이템이 소속된 리스트를 가리킨다. 이것은 이 리스트 아이템이 특정 리스트에 소속되어 있는지 빠르게 알 수 있는 방법이다. 각 리스트 엘리먼트는 다음의 조건에 따라 하나의 리스트에 놓일 수 있다. 
+
+~~~ {.c}
+typedef struct xLIST
+{
+  volatile unsigned portBASE_TYPE uxNumberOfItems;
+  volatile xListItem * pxIndex;           /* Used to walk through the list.  Points to
+                                             the last item returned by a call to 
+                                             pvListGetOwnerOfNextEntry (). */
+  volatile xMiniListItem xListEnd;        /* List item that contains the maximum 
+                                             possible item value, meaning it is always
+                                             at the end of the list and is therefore 
+                                             used as a marker. */
+} xList;
+~~~
+
+빠른 list-size 조작을 위해 모든 시점의 리스트 사이즈는 uxNumberOfItems에 저장되어 있다. 모든 새로운 리스트는 하나의 엘리먼트를 가지도록 초기화 된다.
