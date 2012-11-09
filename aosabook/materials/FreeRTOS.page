@@ -335,4 +335,14 @@ FreeRTOS는 blocking 및 non-blocking queue 입력과 제거를 지원한다. No
 
 block된 task - Task A라 부르자 -는 timeout 시간이 지나지 않았거나, 입력/삭제 연산이 완료되지 않은 동안 block된 상태로 남아 있게 된다. 만약 인터럽트나 다른 task가 Task A의 연산이 완료될 지도 모르는 queue 수정을 한다면 TaskA는 block이 해제 된다. 만약 TaskA의 연산을 수행 할 시간이 남아 있다면 Task A는 queue 연산을 완료하고 "성공":을 리턴한다. 하지만, TaskA가 실행되는 시간에 우선순위 높은 task나 인터럽트가 TaskA의 연산 수행을 막고 다른 연산을 queue에 수행 할 수도 있다. 이 경우 TaskA는 timeout을 체트하고 시간이 지나지 않았다면 다시 blocking할 것이고 지났다면 이 queue 연산에 "실패" 상태를 리턴할것이다.
 
-task가 queue에 blocking된 동안에도 시스템은 작동중이라는 것을 주지해야 한다;  다른 tasks와 인터럽트들은 계속 실행된다. 
+task가 queue에 blocking된 동안에도 시스템은 작동중이라는 것을 주지해야 한다;  다른 tasks와 인터럽트들은 계속 실행된다. 이런 방식으로 block된 task는 다른 tasks나 인터럽트들이 유용하게 사용할 수 있는 CPU cycle을 소비하지 않는다.
+
+FreeRTOS는 xTasksWaitingToSend 리스트를 사용하여 queue에 입력중에 blocking된 tasks를 추적한다. queue에서 엘리먼트가 제거될 때 마다 xTasksWaitingToSend 리스트를 체크한다. 만약 task가 이 리스트에서 대기중이면 그 task는 unblock된다.
+
+비슷하게, xTasksWaitingToReceive 리스트를 사용하여 queue에 제거중에 blocking된 tasks를 추적한다. queue에 엘리먼트를 추가할 때 마다 xTaskWaitingToReceive 리스트를 체크한다. 만약 task가 이 리스트에서 대기중이면 그 task는 unblock된다.
+
+## Semaphores and Mutexes
+
+FreeRTOS는 tasks 상호간에 또는 내부적으로 통신을 위해 queue를 사용한다. FreeRTOS 세마포어와 뮤텍스를 구현하기 위해서도 queue를 사용한다.
+
+### What's The Difference?
