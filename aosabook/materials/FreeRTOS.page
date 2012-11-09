@@ -323,3 +323,10 @@ typedef struct QueueDefinition
 } xQUEUE;
 ~~~
 
+이것은 head와 tail 포인터가 있는 평범한 일반 queue 이고, 포인터를 읽고 쓴 위치를 가리키는데 사용한다.
+
+queue를 생성할 때, 사용자는 queue의 length와 queue에 저장할 아이템의 size를 지정한다. pcHead와 pcTail은 queue의 내부 저장소를 관리하는데 사용한다. queue에 데이터를 추가하면 deep copy를 수행한다.
+
+FreeRTOS는 입력된 아이템의 수명이 queue의 수명보다 짧을 수 있기 때문에 포인터를 보관하는 것 보다 deep copy를 사용한다. 예를 들어, 함수의 지역변수를 사용한 단순한 정수가 호출을 가로질러 추가되고 제거되는 queue를 생각해보자. 만약 queue가 정수의 지역변수를 가리키는 포인터를 보관한다면 실행 실행 스코프를 벗어나는 순간 지역변수 포인터는 사라지고, 다른 값이 덮어 쓰이게 될 것이다.
+
+사용자는 queue 대상을 선택한다. 사용자는 이전 문닫에 예를 든 것과 같이  단순한 숫자 처럼 아이템의 크기가 작다면 아이템의 사본을 queue할 수 있고, 아이템의 크기가 크면 포인터를 queue할 수도 있다. FreeRTOS는 두 상황 모두 deep copy를 한다: 만약 사용자가 아이템 사본을 queue하도록 선택하면 queue는 각 아이템의 deep copy를 저장한다; 만약 사용자가 포인터를 queue하도록 선택하면 queue는 포인터의 deep copy를 저장한다. 물론, 사용자가 포인터를 queue에 보관한다면, 사용자는 포인터와 연관된 메모리를 관리할 책임이 있다. 
