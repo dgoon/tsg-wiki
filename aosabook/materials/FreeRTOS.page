@@ -348,5 +348,39 @@ FreeRTOS는 tasks 상호간에 또는 내부적으로 통신을 위해 queue를 
 ### What's The Difference?
 
 뮤텍스나 세마포어나 비슷한것 같지만 다르다. FreeRTOS는 이들을 비슷한 방법으로 구현하지만, 다른 방식으로 사용한다. 어떻게 다르게 사용한단 말인가? 임베디드 시스템 구루인 마이클 바아아아는 이에대해 "Mutexes and Semaphores Demystified"에 잘 이야기 하고 있다.
+
 > 세마포어는 하나의 task가 다른 task에 signaling하는 데 쓰는 것이 올바른 사용법이다. mutex는 가지고, 반환하는 의미가 부여되기 때문에 이런 의도로  task는 공유자원 보호에 사용한다. 반면에 세마포어를 사용하는 tasks는 signal(FreeRTOS에서는 "send")하거나 wait(FreeRTOS에서는 "receive") 한다.
 
+뮤텍스는 공유자원을 보호하는데 쓰인다. Task는 공유자원을 사용할때 뮤텍스를 취득한 다음 반환한다. 뮤텍스가 다른 task에 의해 점유되었을 때 어떤 task도 뮤텍스를 취득할 수 없다. 이는 공유자원을 한 번에 하나의 task만 사용함을 보장한다.
+
+세마포어는 하나의 task에서 다른 task로 signal할 때 사용된다. 바아아아앙의 글을 인용한다:
+
+> 예를 들어, Task 1이 전원 버튼이 눌렸을 때 특정 세마포어를 post (signal or increment)하는 코드를 포함하고 있고 display를 켜는 역할을 하는 Task 2는 같은 세마포어를 기다린다. 이 시나리오에서 하나의 task는 이벤트 시그널의 생산자이고 다른 task는 소비자이다.
+
+만약 아리까리 하면, 마이클의 글을 정독해봐라.
+
+### Implementation
+
+FreeRTOS는 N개의 아이템을 보관할 수 있는 queue와 같은 N-element 세마포어를 구현한다. 이것은 queue 아이템을위한 실제 데이터는 저장하짐 않는다: 세마포어는 단지 몇 개의 queue 엔트리가 현재 할당 되었는지를 관리한다. 이는 queue의 uxMessagesWaiting 필드로 관리하게 된다. 이것은 FreeRTOS 헤더 파일 semphr.h에 있는 "pure synchronization"을 실행한다. 따라서 queue는 0바이트의 아이템사이즈를 가진다(uxItemSize == 0). 각 세마포어는 uxMessageWaiting필드에 접근하여 이를 증가시키거나 감소시킨다: 데이터 복사는 일어나지 않는다.
+
+세마포어와 비슷하게, 뮤텍스도 queue로 구현하지만 몇몇 xQUEUE 구조체 필드를 #define을 이용해 overload 한다.
+
+~~~ {.c}
+/* Effectively make a union out of the xQUEUE structure. */
+#define uxQueueType           pcHead
+#define pxMutexHolder         pcTail
+~~~
+
+뮤텍스는 queue에 데이터를 저장하지 않기 때문에, 내부 저장소를 쓰지 않으며 pcHead, pcTail 필드가 필요 없다. FreeRTOS는 uxQeueType필드(실제로는 pcHead필드)를 0으로 설정하여 이 queue가 뮤텍스로 사용됨을 표시한다. FreeRTOS는 overload된 pcTail을 사용하여 뮤텍스를 위한 우선순위 상속을 구현한다.
+
+우선순위 상속에 대해 잘 모른다면 마이클 바아아아아의 글을 다시 인용하여 이를 정의한다 이번에는 "Introduction to Priority Inversoion"이다.
+
+> [우선순위 상속]은 낮은 우선순위의 task가 공유 자원을 대기중인 높은 우선순위의 task의 우선순위를 상속하는 것을 의미한다. 이러한 우선순위 변경은 최대한 빨리 높은 우선순위 task가 대기를 시작하도록 만들어줘야 한다.; 이는 자원이 반환되면 종료되야 한다.
+
+FreeRTOS는 pxMutexHolder 필드(이것은 #define pcTail필드로 오버로드 되어 있다)를 이용하여 우선순위 상속을 구현한다. FreeRTOS는 pxMutexHolder필드에 뮤텍스를 소유한 task를 기록한다. 높은 우선순위의 task가 현재 낮은 우선순위의 task가 뮤텍스를 소유중임을 발견했을 때 FreeRTOS는 뮤텍스가 다시 유효해질 때 까지 낮은 우선순위의 task를 높은 우선순위의 task와 같은 수준으로 우선순위를 업그레이드 한다.
+
+# Conclusion
+
+지금까지 FreeRTOS의 아키텍쳐에 대해 모두 살펴보았다. FreeRTOS의 task 운용 및 통신에 대해 감을 잡았으리라 기대한다. 만약 한번도 OS의 내부에 대해 살펴보지 않았다면 이번 기회에 감을 잡았기 바란다.
+
+당연히, 이 장에서는 FreeRTOS의 모든 아키텍쳐를 다루지 않았다. 메모리 할당, ISRs, 디버깅, MPU 지원등을 빼먹었다. 이 장은 FreeRTOS의 셋업 방법도 다루지 않았다. Richard Barry는 Using the FreeRTOS Real Time Kernel: A Practical Guide 라는 훌륭한 책에 이에대한 이야기를 써 놓았다, 읽어봐라. 
