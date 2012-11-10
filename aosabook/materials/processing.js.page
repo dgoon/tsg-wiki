@@ -4,19 +4,68 @@
 
 (을 시도해 봅니다...)
 
-원래 Ben Fry와 Casey Reas에 의해 개발된 프로세싱 프로그래밍 언어는 일렉트로닉 아트와 비쥬얼 디자인 커뮤니티가 비쥬얼 컨텍스트 내에서 기본적인 컴퓨터 프로그래밍을 배우는 것을 돕기 위한 (자바 기반의) 오픈 소스 프로그래밍 언어로 시작되었다. 대부분의 프로그래밍 언어들과 비교되는 2D와 3D 그래픽스를 위한 매우 단순화된 모델을 제공한 것은, 그것이 광범위한 활동(작은 시가화를 작성하는 것을 통해 프로그래밍을 가르치는 것 부터 multi-wall art installations을 창조하는 것까지)을 위해 빠르게 잘 적용되었고, 다양한 여러가지 작업(간단히 문자열들의 배열를 읽는 것에서 부터 대중적인 아두이노 오픈 소스 하드웨어 프로토타이핑 보드를 프로그래밍하고 구동하기 위한 거의 표준의 IDE로써 동작하는 것까지)을 수행할 수 있게 되었다. 계속 인기를 얻고 있는 프로세싱은 배우기 쉽고, 모든 보여지는 것과 그 이상의 것을 위한 널리 사용되는 프로그래밍 언어로써 그 자리를 확고히 하고 있다.
+원래 Ben Fry와 Casey Reas에 의해 개발된 프로세싱 프로그래밍 언어는 일렉트로닉 아트와 비쥬얼 디자인 커뮤니티가 비쥬얼 컨텍스트 내에서 기본적인 컴퓨터 프로그래밍을 배우는 것을 돕기 위한 (자바 기반의) 오픈 소스 프로그래밍 언어로 시작되었다. 대부분의 프로그래밍 언어들과 비교되는 2D와 3D 그래픽스를 위한 매우 단순화된 모델을 제공한 것은, 그것이 광범위한 활동(작은 시각화를 작성하는 것을 통해 프로그래밍을 가르치는 것 부터 multi-wall art installations을 창조하는 것까지)을 위해 빠르게 잘 적용되었고, 다양한 여러가지 작업(간단히 문자열들의 배열를 읽는 것에서 부터 대중적인 아두이노 오픈 소스 하드웨어 프로토타이핑 보드를 프로그래밍하고 구동하기 위한 거의 표준의 IDE로써 동작하는 것까지)을 수행할 수 있게 되었다. 계속 인기를 얻고 있는 프로세싱은 배우기 쉽고, 모든 보여지는 것과 그 이상의 것을 위한 널리 사용되는 프로그래밍 언어로써 그 자리를 확고히 하고 있다.
 
-스케치(sketch)라고 불리는 기본적인 프로세싱 프로그램은 두개의 함수로 구성되어 있다: `setup`과 `draw`. 첫번째는 주 프로그램의 엔트리 포인트로, 초기화 명령의 상당량을 포함할 수 있다. `setup`이 끝난 후, 프로세싱 프로그램은 두가지 중 하나를 할 수 있다: 1) `draw`를 호출하고 완료될 때까지 고정된 간격으로 그려주기 위해 하기 위해 다른 호출을 예정하는 것 또는 2)`draw`를 호출하고 사용자로 부터 입력을 대기하는 것. 기본적으로 프로세싱은 전자처럼 동작하고, `noLoop`를 호출할 경우 후자 처럼 동작한다.이것은 스케치를 표시하는데 두 가지 모드를 허용하는데, 다시 말하면 고정된 프레임레이트의 그래픽 환경과 상호적이고, 이벤트에 기반하여 업데이트되는 그래픽 환경이다. 두 경우 모두, 사용자 이벤트는 감시되고, 그들 자신의 이벤트 처리기나 `draw` 함수에 직접적으로 persistent global values에 설정된 특정 이벤트로 처리될 수 있다.
+스케치(sketch)라고 불리는 기본적인 프로세싱 프로그램은 두개의 함수로 구성되어 있다: `setup`과 `draw`. 첫번째는 주 프로그램의 엔트리 포인트로, 초기화 명령의 상당량을 포함할 수 있다. `setup`이 끝난 후, 프로세싱 프로그램은 두가지 중 하나를 할 수 있다: 1) `draw`를 호출하고 완료될 때까지 고정된 간격으로 그려주기 위해 하기 위해 다른 호출을 예정하는 것 또는 2)`draw`를 호출하고 사용자로 부터 입력을 대기하는 것. 기본적으로 프로세싱은 전자처럼 동작하고, `noLoop`를 호출할 경우 후자 처럼 동작한다.이것은 스케치를 표시하는데 두 가지 모드를 허용하는데, 다시 말하면 고정된 프레임레이트의 그래픽 환경과, 상호적이고 이벤트에 기반하여 업데이트되는 그래픽 환경이다. 두 경우 모두, 사용자 이벤트는 감시되고, 그들 자신의 이벤트 처리기나 `draw` 함수에 직접적으로 persistent global values에 설정된 특정 이벤트로 처리될 수 있다.
 
 Processing.js는 Java 또는 플러그인의 필요 없이 웹에 프로세싱을 가져오기 위해 설계된 자매 프로젝트이다. 이것은 John Resig에 의해 2008년에 대중에게 공개된 컨셉 라이브러리의 증거와 함께 그래픽 컨텍스트로-당시에는 아주 새로웠던-HTML5 `<canvas>` 요소를 사용함으로써 프로세싱 언어가 웹으로 이식될 수 있다는 것을 보여주는 시도로 부터 시작되었다. "your code should just work"는 아이디어를 염두하고 쓰여진 Processing.js는 어떤 플러그인도 없이 웹 표준만을 사용하여 동작하는 시각화, 디지털 아트, 인터랙티브 애니메이션, 교육적 그래픽, 비디오 게임 등의 데이터를 만들기 위해 수년에 걸쳐 개선되었다. 당신이 프로세싱 IDE나 선호하는 에디터에서 프로세싱 언어를 사용하여 코드를 작성하고 `<canvas>` 요소를 사용하는 웹페이지에 그것을 포함하면, Processing.js는 `<canvas>` 요소 안에 모든 것을 렌더링하고, 평범한 스탠드얼론 프로세싱 프로그램이 하는 것과 같은 방법으로 사용자가 그래픽스와 소통할 수 있게 하는 나머지 작업을 한다.
 
 **17.1. 어떻게 작동하나?**
 
-Processing.js is a bit unusual as an open source project, in that the code base is a single file called processing.js which contains the code for Processing, the single object that makes up the entire library. In terms of how the code is structured, we constantly shuffle things around inside this object as we try to clean it up a little bit with every release. Its design is relatively straightforward, and its function can be described in a single sentence: it rewrites Processing source code into pure JavaScript source code, and every Processing API function call is mapped to a corresponding function in the JavaScript Processing object, which effects the same thing on a `<canvas>` element as the Processing call would effect on a Java Applet canvas.
+Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하는 단일 객체인 프로세싱을 위한 코드를 담고 있는 `processing.js`라고 불리우는 하나의 파일이라는 것에서 오픈 소스 프로젝트로써 약간 특이하다. 코드를 구성하는 방법 측면에서, 매 릴리즈와 함께 이 객체에 대한 약간의 청소를 시도할 때마다 우리는 끊임없이 그것 내부 주변의 것들을 정리한다. 그것의 설계는 비교적 간단하며, 그것의 함수는 하나의 문장으로 설명될 수 있다: 이것은 프로세싱 소스 코드를 순수 자바스크립 소스 코드로 재작성한 것이고 모든 프로세싱 API 함수 호출은 자바스크립트 프로세싱 객체에 대응되는 함수로 매핑될 수 있다. 그 함수 호출은 프로세싱 호출이 자바 애플릿 캔버스 상에 미치는 결과와 동일한 것을 `<canvas>` 상에 가져온다. (번역주: 한문장인데 번역이 힘들어서 두문장으로 잘랐습니다. ㅠ.ㅠ)
 
-Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하는 단일 객체인 프로세싱을 위한 코드를 담고 있는 processing.js라고 불리우는 하나의 파일이라는 것에서 오픈 소스 프로젝트로써 약간 특이하다. 코드가 구조화된 방법이라는 측면에서 우리는 끈힘없이 이 객체 내부 주위를 ...
+속도에 대해, 우리는 2D와 3D 함수를 위한 두가지 분리된 코드 경로를 가지고 있다. 그리고 스케치가 로드 될 때 하나 또는 다른 하나는 실행 중인 객체에 부풀린 것을 추가하지 않는 것을 해결하기 위핸 함수 랩퍼들을 위해 사용된다. 그러나, 자료 구조와 코드 흐름 측면에서 자바스크립트를 아는 것은 당신이 구문 해석기의 가능한 예외와 함께 `processing.js`를 읽을 수 있다는 것을 의미한다.
 
-For speed, we have two separate code paths for 2D and 3D functions, and when a sketch is loaded, either one or the other is used for resolving function wrappers so that we don't add bloat to running instances. However, in terms of data structures and code flow, knowing JavaScript means you can read processing.js, with the possible exception of the syntax parser.
+**Unifying Java and JavaScript**
+
+Rewriting Processing source code into JavaScript source code means that you can simply tell the browser to execute the rewritten source, and if you rewrote it correctly, things just work. But, making sure the rewrite is correct has taken, and still occasionally takes, quite a bit of effort. Processing syntax is based on Java, which means that Processing.js has to essentially transform Java source code into JavaScript source code. Initially, this was achieved by treating the Java source code as a string, and iteratively replacing substrings of Java with their JavaScript equivalents. (For those interested in an early incarnation of the parser, it can be found at here, running from line 37 to line 266.) For a small syntax set, this is fine, but as time went on and complexity added to complexity, this approach started to break down. Consequently, the parser was completely rewritten to build an Abstract Syntax Tree (AST) instead, first breaking down the Java source code into functional blocks, and then mapping each of those blocks to their corresponding JavaScript syntax. The result is that, at the cost of readability, Processing.js now effectively contains an on-the-fly Java-to-JavaScript transcompiler. (Readers are welcome to peruse this code, up to line 19217.)
+
+Here is the code for a Processing sketch:
+
+
+    void setup() {
+      size(200,200);
+      noCursor();
+      noStroke();
+      smooth(); }
+
+    void draw() {
+      fill(255,10);
+      rect(-1,-1,width+1,height+1);
+      float f = frameCount*PI/frameRate;
+      float d = 10+abs(60*sin(f));
+      fill(0,100,0,50);
+      ellipse(mouseX, mouseY, d,d); }
+
+And here is its Processing.js conversion:
+
+    function($p) {
+        function setup() {
+            $p.size(200, 200);
+            $p.noCursor();
+            $p.noStroke();
+            $p.smooth(); }
+        $p.setup = setup;
+
+        function draw() {
+            $p.fill(255, 10);
+            $p.rect(-1, -1, $p.width + 1, $p.height + 1);
+            var f = $p.frameCount * $p.PI / $p.__frameRate;
+            var d = 10 + $p.abs(60 * $p.sin(f));
+            $p.fill(0, 100, 0, 50);
+            $p.ellipse($p.mouseX, $p.mouseY, d, d); }
+        $p.draw = draw; }
+
+This sounds like a great thing, but there are a few problems when converting Java syntax to JavaScript syntax:
+
+1. Java programs are isolated entities. JavaScript programs share the world with a web page.
+1. Java is strongly typed. JavaScript is not.
+1. Java is a class/instance based object-oriented language. JavaScript is not.
+1. Java has distinct variables and methods. JavaScript does not.
+1. Java allows method overloading. JavaScript does not.
+1. Java allows importing compiled code. JavaScript has no idea what that even means.
+
+Dealing with these problems has been a tradeoff between what users need, and what we can do given web technologies. The following sections will discuss each of these issues in greater detail.
 
 
 
