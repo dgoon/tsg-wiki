@@ -20,7 +20,7 @@ Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하�
 
 프로세싱 소스 코드를 자바스크립트 소스 코드로 재작성하는 것은 당신이 간단히 브라우저에게 재작성된 소스코드를 실행하라고 말할 수 있다는 것을 의미하며, 만약 그것을 정확히 재작성했다면, 그것은 그냥 작동한다. 하지만 재작성한 것이 정확한지 확인하는 것은 시간이 걸리고, 때때로 꽤 많은 노력이 필요하다. 프로세싱 문법은 자바에 기반한다. 그것은 Processing.js가 본질적으로 자바 소스 코드를 자바스크립트 소스 코드로 변환해야함을 의미한다. 초기에 이것은 문자열로써 자바 소스 코드를 다루어, 반복적으로 자바의 부분문자열을 자바스크립트에서 그것과 동등한 것으로 대체함으로써 달성되었다.(파서의 초기 화신에 관심있는 분들에 대해, 그것은 실행 중인 라인 37에서 라인 266에서 찾을 수 있다.) 작은 문법 집합에 대해 이것은 좋은 방법이지만 시간이 지날수록 복잡도에 복잡도가 추가되어 이런 접근은 망가지기 시작했다. 그 결과, 파서는 처음 자바 소스 코드를 함수 블록으로 분해하는 것 대신 이러한 블록을 대응되는 자바스크립트 문법으로 맵핑하는 추상 구문 트리(AST)를 생성하기 위하여 완전히 재작성되었다. 그 결과 가독성의 비용 측면에서, Processing.js는 현재 효과적으로 on-the-fly 자바-대-자바스크립트 변환컴파일러를 포함하게 되었다. (독자들은 19217줄까지 이 코드를 정독해도 좋다.)
 
-Here is the code for a Processing sketch:
+이것은 프로세싱 스케치를 위한 코드이다:
 
 ~~~ { .java }
     void setup() {
@@ -38,7 +38,7 @@ Here is the code for a Processing sketch:
       ellipse(mouseX, mouseY, d,d); }
 ~~~
 
-And here is its Processing.js conversion:
+그리고 이것은 위의 Processing.js 변환이다:
 
 ~~~ { .javascript }
     function($p) {
@@ -59,16 +59,25 @@ And here is its Processing.js conversion:
         $p.draw = draw; }
 ~~~
 
-This sounds like a great thing, but there are a few problems when converting Java syntax to JavaScript syntax:
+이것은 굉장한 것 처럼 들리지만, 자바 문법을 자바스크립트로 변환할 때 몇가지 문제가 있다:
 
-1. Java programs are isolated entities. JavaScript programs share the world with a web page.
-1. Java is strongly typed. JavaScript is not.
-1. Java is a class/instance based object-oriented language. JavaScript is not.
-1. Java has distinct variables and methods. JavaScript does not.
-1. Java allows method overloading. JavaScript does not.
-1. Java allows importing compiled code. JavaScript has no idea what that even means.
+1. 자바 프로그램은 고립된 개체이지만, 자바스크립트 프로그램은 웹 페이지와 세계를 공유한다.
+1. 자바는 강타입이고, 자바스크립트는 그렇지 않다.
+1. 자바는 클래스/인스턴스 기반의 객체 지향 언어이고, 자바스크립트는 그렇지 않다.
+1. 자바는 구분된 변수와 함수를 가지고 있지만, 자바스크립트는 그렇지 않다.
+1. 자바는 함수 오버로딩을 허용하지만, 자바스크립트는 그렇지 않다.
+1. 자바는 컴파일된 코드를 가져오는 것을 허용하지만, 자바스크립트는 심지어 그게 뭘 뜻하는지조차 모른다.
 
-Dealing with these problems has been a tradeoff between what users need, and what we can do given web technologies. The following sections will discuss each of these issues in greater detail.
+이러한 문제를 다루는 것은 사용자가 요구하는 것과 우리가 주어진 웹 기술로 할 수 있는 것 사이에 트레이드오프가 되었다. 다음 섹션은 좀 더 자세히 이러한 이슈 각각에 대해 논의하게 될 것이다.
+
+**17.2. 상당한 차이점들**
+
+**자바 프로그램은 그들 자신의 스레드를 갖는다; 자바스크립트는 당신의 브라우저를 쓸 수 없게 만들 수 있다.**
+
+자바 프로그램은 당신 시스템 상의 응용 프로그램의 보다 큰 풀 안에 있는 그들 자신의 스레드 내에서 실행되는 고립된 개체이다. 반면에, 자바스크립트 프로그램은 브라우저 내에 살고, 
+데스크탑 응용 프로그램이 하지 않는 방법으로 서로 경쟁한다.
+
+Java programs are isolated entities, running in their own thread in the greater pool of applications on your system. JavaScript programs, on the other hand, live inside a browser, and compete with each other in a way that desktop applications don't. When a Java program loads a file, the program waits until the resource is done loading, and operation resumes as intended. In a setting where the program is an isolated entity on its own, this is fine. The operating system stays responsive because it's responsible for thread scheduling, and even if the program takes an hour to load all its data, you can still use your computer. On a web page, this is not how things work. If you have a JavaScript "program" waiting for a resource to be done loading, it will lock its process until that resource is available. If you're using a browser that uses one process per tab, it will lock up your tab, and the rest of the browser is still usable. If you're using a browser that doesn't, your entire browser will seem frozen. So, regardless of what the process represents, the page the script runs on won't be usable until the resource is done loading, and it's entirely possible that your JavaScript will lock up the entire browser
 
 
 
