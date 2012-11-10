@@ -18,11 +18,11 @@ Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하�
 
 **자바와 자바스크립트 통합하기**
 
-프로세싱 소스 코드를 자바스크립트 소스 코드로 재작성하는 것은 당신이 간단히 브라우저에게 재작성된 소스코드를 실행하라고 말할 수 있다는 것을 의미하며, 만약 그것을 정확히 재작성했다면, 그것은 그냥 작동한다. 하지만 재작성한 것이 정확한지 확인하는 것은 시간이 걸리고, 때때로 꽤 많은 노력이 필요하다. 프로세싱 문법은 자바에 기반한다. 그것은 Processing.js가 본질적으로 자바 소스 코드를 자바스크립트 소스 코드로 변환해야함을 의미한다. 초기에 이것은 문자열로써 자바 소스 코드를 다루어, 반복적으로 자바의 부분문자열을 자바스크립트에서 그것과 동등한 것으로 대체함으로써 달성되었다.(파서의 초기 화신에 관심있는 분들에 대해, 그것은 실행 중인 라인 37에서 라인 266에서 찾을 수 있다.) 작은 문법 집합을 위해, 이것은 좋은 방법이지만 시간이 지날수록 복잡도에 복잡도가 추가되어 이런 접근은 망가지기 시작했다. 그 결과, 파서는 추상 구문 트리를 생성하기 위하여 완전히 재작성되었다.Consequently, the parser was completely rewritten to build an Abstract Syntax Tree (AST) instead, first breaking down the Java source code into functional blocks, and then mapping each of those blocks to their corresponding JavaScript syntax. The result is that, at the cost of readability, Processing.js now effectively contains an on-the-fly Java-to-JavaScript transcompiler. (Readers are welcome to peruse this code, up to line 19217.)
+프로세싱 소스 코드를 자바스크립트 소스 코드로 재작성하는 것은 당신이 간단히 브라우저에게 재작성된 소스코드를 실행하라고 말할 수 있다는 것을 의미하며, 만약 그것을 정확히 재작성했다면, 그것은 그냥 작동한다. 하지만 재작성한 것이 정확한지 확인하는 것은 시간이 걸리고, 때때로 꽤 많은 노력이 필요하다. 프로세싱 문법은 자바에 기반한다. 그것은 Processing.js가 본질적으로 자바 소스 코드를 자바스크립트 소스 코드로 변환해야함을 의미한다. 초기에 이것은 문자열로써 자바 소스 코드를 다루어, 반복적으로 자바의 부분문자열을 자바스크립트에서 그것과 동등한 것으로 대체함으로써 달성되었다.(파서의 초기 화신에 관심있는 분들에 대해, 그것은 실행 중인 라인 37에서 라인 266에서 찾을 수 있다.) 작은 문법 집합에 대해 이것은 좋은 방법이지만 시간이 지날수록 복잡도에 복잡도가 추가되어 이런 접근은 망가지기 시작했다. 그 결과, 파서는 처음 자바 소스 코드를 함수 블록으로 분해하는 것 대신 이러한 블록을 대응되는 자바스크립트 문법으로 맵핑하는 추상 구문 트리(AST)를 생성하기 위하여 완전히 재작성되었다. 그 결과 가독성의 비용 측면에서, Processing.js는 현재 효과적으로 on-the-fly 자바-대-자바스크립트 변환컴파일러를 포함하게 되었다. (독자들은 19217줄까지 이 코드를 정독해도 좋다.)
 
 Here is the code for a Processing sketch:
 
-
+~~~ { .java }
     void setup() {
       size(200,200);
       noCursor();
@@ -36,9 +36,11 @@ Here is the code for a Processing sketch:
       float d = 10+abs(60*sin(f));
       fill(0,100,0,50);
       ellipse(mouseX, mouseY, d,d); }
+~~~
 
 And here is its Processing.js conversion:
 
+~~~ { .javascript }
     function($p) {
         function setup() {
             $p.size(200, 200);
@@ -55,6 +57,7 @@ And here is its Processing.js conversion:
             $p.fill(0, 100, 0, 50);
             $p.ellipse($p.mouseX, $p.mouseY, d, d); }
         $p.draw = draw; }
+~~~
 
 This sounds like a great thing, but there are a few problems when converting Java syntax to JavaScript syntax:
 
