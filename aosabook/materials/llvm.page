@@ -150,21 +150,36 @@ Backend
 
 4. LLVM's Implementation of Three-Phase Design
 
-  - LLVM IR is a Complete Code Representation
+ LLVM 기반의 컴파일러에서, 프론트엔드는 입력 코드의 파싱, 검증 및 에러 진단 그리고 파싱된 코드를 LLVM IR로 변환하는 일을 책임진다. 가끔은 LLVM IR 이 아닌 AST 를 생성하고 이 AST를 다시 LLVM IR로 변환하기도 한다. 여튼 이 IR은 코드를 개선할 수 있는 분석/최적화 패스를 연속적으로 통과한 후에, 마지막으로 기계어로 변환하기 위한 코드 생성기로 전달된다. 이것은 아주 명확한 3단계 설계의 구현인데, 이는 LLVM IR로부터 이끌어낸 LLVM 설계의 유연성과 강력함에 기반한다.
 
-  - LLVM IR is a Collection of Libraries
+ .. image:: http://www.aosabook.org/images/llvm/LLVMCompiler1.png
+
+ - LLVM IR is a Complete Code Representation
+
+  LLVM IR은 최적화 모듈의 잘 정의된, 그리고 유일한 인터페이스다. 따라서 LLVM을 위한 프론트엔드를 만들기 위해서 알아야 할 것은, LLVM IR이 무엇인지, 어떻게 동작하는지 그리고 필요한 불변값은 무엇인지가 전부라고 할 수 있다. LLVM IR은 일차적으로 텍스트 형식을 가지고 있기 때문에 프론트엔드가 출력하는 LLVM IR은 텍스트 형식으로 하는 것이 가능하다. 뿐만 아니라 이는 꽤 괜찮은 선택이기도 한데, 유닉스 파이프를 사용해서 *bit-code* 로 변환할 수 있고, 최적화 모듈이나 코드 생성기에 바로 넘길 수도 있기 때문이다.
+
+  놀라울 수도 있지만, 바로 이 특징이 LLVM 성공의 주요 요인 중 하나이다. GCC 처럼 비교적 잘 설계된 컴파일러조차도 이런 특징을 지니지 못했다. GCC의 GIMPLE이라는 중간 단계 표현은 스스로 완결되지 않는다. 예를 들어 GCC 코드 생성기가 DWARF 디버깅 정보를 생성할 때 뒤로 돌아가서 소스레벨 트리를 살펴본다. GIMPLE 그 자체도 명령어에 대해서는 **tuple** 표현을 사용하지만, 피연산자는 아직도 소스 트리에 대한 레퍼런스로 들고 있다.
+
+  이게 암시하는 바는, GCC의 프론트엔드 작성자는 GIMPLE외에 GCC의 트리 자료구조 역시 알아야 한다는 뜻이다. GCC의 백엔드 역시 비슷한 문제를 가지고 있다. 마지막으로, GCC는 "전체 코드를 나타내는 무언가" 를 덤프하지 못하고, GIMPLE(과 이에 연관된 다른 자료구조들)을 텍스트 형식으로 읽고 쓸 수 있는 방법이 없다. 그 결과로 GCC 로 뭔가 실험적인 작업을 하는 것은 매우 어려우며, 프론트엔드의 수가 쉽게 늘기 어렵다.
+
+ - LLVM IR is a Collection of Libraries
+
+  LLVM에서 LLVM IR의 설계 다음으로 중요한 것은, GCC같이 한 덩어리의 컴파일러 바이너리, 혹은 JVM/.NET같은 가상머신이 아니라 **라이브러리 집합**으로 설계되었다는 점이다. LLVM은 특정 문제를 위해 고안된 여러가지 유용한 컴파일러 기술의 묶음으로써, 기반구조를 형성하고 있다. 바로 이 점이 가장 강력한 특징 중 하나이지만, 가장 잘 놓치는 디자인 포인트이기도 하다.
+
+  ... 오늘은 여기까지.
+
 
 5. Design of the Retargetable LLVM Code Generator
 
-  - LLVM Target Description Files
+ - LLVM Target Description Files
 
 6. Interesting Capabilities Provided by a Modular Design
 
-  - Choosing When and Where Each Phase Runs
+ - Choosing When and Where Each Phase Runs
 
-  - Unit Testing the Optimizer
+ - Unit Testing the Optimizer
 
-  - Automatic Test Case Reduction with BugPoint
+ - Automatic Test Case Reduction with BugPoint
 
 7. Retrospective and Future Directions
 
