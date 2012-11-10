@@ -58,7 +58,95 @@ Backend
 
 3. LLVM's Code Representation: LLVM IR
 
+ 이런 역사적인 배경지식을 가지고 LLVM을 한번 살펴보자. 설계의 가장 중요한 부분은 바로 **LLVM Intermediate Representation(IR)** 이다. LLVM IR은 컴파일러가 코드를 나타내기 위해 사용하는 스펙으로, 중간 단계의 분석 및 최적화 변환에 사용한다. 여러가지 확실한 목적을 염두에 두고 설계되었는데, 그 중에는 가벼운 런타임 최적화, 여러개의 함수/프로시저를 통합한 최적화, 전체 프로그램 분석, 공격적인 재구조화 변환 등이 있다. 핵심은, LLVM IR 자체가 잘 정의된 의미를 가진 언어라는 점이다. 여기 구체적인 예가 있다.::
+
+  define i32 @add1(i32 %a, i32 %b) {
+  entry:
+    %tmp1 = add i32 %a, %b
+    ret i32 %tmp1
+  }
+
+  define i32 @add2(i32 %a, i32 %b) {
+  entry:
+    %tmp1 = icmp eq i32 %a, 0
+    br i1 %mp1, label %done, label %recurse
+
+  recurse:
+    %tmp2 = sub i32 %a, 1
+    %tmp3 = add i32 %b, 1
+    %tmp4 = call i32 @add2(i32 %tmp2, i32 %tmp3)
+    ret i32 %tmp4
+
+  done:
+    ret i32 %b
+  }
+
+ 위의 LLVM IR로 작성된 두 함수는 각각 아래의 C 코드를 표현하는 것으로, 두 정수를 더하는 서로 다른 방법이다.::
+
+  unsigned add1(unsigned a, unsigned b) {
+    return a+b;
+  }
+
+  unsigned add2(unsigned a, unsigned b) {
+    if (a==0) return b;
+    return add2(a-1, b+1);
+  }
+
+ 위의 예에서 볼 수 있듯 LLVM IR은 저수준의 RISC와 같은 가상 명령어 집합이다. **실제 RISC와 같이** *더하기, 빼기, 비교, 분기* 등의 간단한 명령어들을 지원한다. 이 명령들은 3-주소-형식인데, 이는 명령어가 몇 개의 입력을 받고, 입력이 아닌 다른 레지스터에 결과를 저장한다는 것을 의미한다. LLVM IR은 레이블도 지원하고, 일반적으로는 좀 이상한 형태의 어셈블리 언어처럼 보인다.
+
+ 대부분의 RISC 명령어 집합과 다른 점으로는, LLVM IR은 간단한 타입 시스템을 가진 **강 타입** 언어이고, 실제 기계의 상세한 부분을 추상화시켜 버렸다는 부분을 들 수 있다. 예를 들어 *call*, *ret*와 명시적인 인자 전달을 통하여 호출 규약(calling convention)을 추상화시켜 버렸다. 기계어와 또 다른 중요한 차이점은 레지스터의 수이다. LLVM IR 은 임시로 이름을 붙일 수 있는 무한한 수의 레지스터를 가질 수 있따. 임시 이름은 **%**를 앞에 붙임으로써 생성할 수 있다.
+
+ 언어로써의 구현 이외에, LLVM IR은 3가지의 서로 동등한 형태로 정의된다. 각각 위에 설명한 *텍스트 형식*, 최적화를 위해 변경되고 조사하기 위한 *메모리 적재 자료구조*, 마지막으로 디스크에 저장하기 위한 압축적인 *bit-code* 형식이다. LLVM 프로젝트는 각 포맷간의 변환을 위한 툴을 제공한다. *llvm-as* 는 텍스트 형식(.ll)을 bit-code(.bc)로 변환하며, *llvm-dis*는 .bc 를 .ll 로 변환한다.
+
+ 컴파일러의 중간 표현은 최적화기를 위한 **완벽한 세상** 이라는 점에서 매우 흥미롭다. 컴파일러의 백엔드나 프론트엔드와는 달리 최적화기는 특정한 소스 언어나 타겟 머신의 제약을 받지 않는다. 한편으로는, 그 양쪽 모두와 관련이 있기도 하다. 프론트엔드가 소스 언어를 쉽게 변환해낼 수 있을 만큼 쉽고, 실제 코드에 적용될 수준의 중요한 최적화가 가능할 정도로 표현력이 있어야 한다.
+
  - Writing an LLVM IR Optimization
+
+  최적화가 어떻게 일어나는지 감을 잡기 위해서는 예를 좀 살펴보는 것이 좋다. 컴파일러 최적화는 정말 많은 종류가 있고, 임의의 문제를 풀기 위한 레시피를 제공하는 것은 매우 어렵다. 대부분의 최적화는 간단한 3단계 구조를 가진다는 정도가 그나마 얘기할 수 있는 정도이다:
+
+   1. 변환할 패턴을 찾는다
+   #. 찾은 패턴에 대해 변환이 안전/정확한지 검증한다
+   #. 변환을 수행하고 코드를 갱신한다
+
+  *어떤 정수 X에 대해서, X-X=0, X-0=X, (X\*2)-X=X 이다* 와 같은 대수적 표현을 최적화하는게 가장 간단한 예가 될 수 있다. 일단 첫번째로 패턴 매칭을 하기 위해 LLVM IR 에서 이런 대수적 표현이 어떻게 표현되는지를 알아야 한다. 이런 예가 가능하다. ::
+
+   ...
+   %example1 = sub i32 %a, %a
+   ...
+   %example2 = sub i32 %b, 0
+   ...
+   %tmp = mul i32 %c, 2
+   %example3 = sub i32 %tmp, %c
+   ...
+
+  이런 류의 구멍난 변환에 대해서, LLVM은 다른 고수준 변환에서 유틸리티로 사용될만한 명령어 단순화 인터페이스를 제공한다. 이런 변환은 ``SimplifySubInt`` 함수에 있으며, 아래와 같은 모양을 하고 있다. ::
+
+   // X - 0 -> X
+   if (match(Op1, m_Zero())
+     return Op0;
+
+   // X - X-> 0
+   if (Op0 == Op1)
+     return Constant:getNullValue(Op0->getType());
+
+   // (X*2) - X -> X
+   if (match(Op0, m_Mul(m_Specific(Op1), m_ConstantInt<2>())))
+     return Op1;
+
+   ...
+
+   return 0; // Nothing matched, return null to indicate no transformation
+
+  이 코드에서 Op0, Op1 은 각각 왼쪽, 오른쪽의 정수 피연산자에 해당한다. LLVM은 C++로 구현되었는데, C++은 다른 언어(Objective Caml이라거나...)에 비해 패턴 매칭을 잘 지원하는 편은 아니다. 대신 아주 일반적인 템플릿 시스템을 가지고 있는데, 이것으로 어느정도 비슷한 일을 할 수 있다. ``match`` 함수와 ``m_*`` 함수가 LLVM IR 코드에 대해서 이런 선언적인 패턴매칭을 수행한다. 예를 들어서 위의 ``m_Specific`` 은 곱하기 연산의 왼쪽 피연산자가 Op1 인 경우에만 매치되는 술부(predicate)이다.
+
+  동시에, 위 함수는 이 3가지 경우 모두 매치되어 코드 변환이 일어나는 경우 변환될 코드를 리턴한다. 변환이 없는 경우 - 그러니까 매치되지 않은 경우 - 에는 널포인터를 리턴한다. 이 함수를 호출한 쪽(``SimplifyInstruction``)은 명령어 코드를 보고 각 명령어에 맞는 함수를 호출해주는 일종의 분배기이다. 이 분배기를 사용한 드라이버 코드는 아래와 같은 모양이다. ::
+
+   for (BasicBlock::iterator I=BB->begin(), E=BB->end(); I!=E; ++I) {
+     if (Value *V=SimplifyInstruction(I))
+       I->replaceAllUsesWith(V);
+   }
+
+  이 코드는 단순히 블럭의 각 명령어를 살펴보면서 단순화시킬 수 있는 것이 있는지 확인한다. 만약 있다면(``SimplifyInstruction``이 null이 아닌 것을 리턴) ``replaceAllUsesWith``를 호출해서 단순화된 코드로 업데이트를 수행한다.
 
 4. LLVM's Implementation of Three-Phase Design
 
