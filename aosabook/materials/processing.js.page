@@ -78,7 +78,26 @@ Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하�
 
 리소스가 비동기적으로 전송되는 현대적인 웹에서 이것은 용납될 수 없고, 리소스가 백그라운드로 로드되는 동안 페이지는 정상적으로 작동될 것으로 예상된다. 전통적인 웹 페이지를 위해 이것은 훌륭하지만, 웹 응용 프로그램에 대해서 이것은 진짜 어려운 문제(brain twister)이다: 명시적으로 자바스크립트를 쉬게 만들 메커니즘이 없을 때, 로드될 리소스를 기다리는 동안 어떻게 자바스크립트를 쉬게 만들까? 자바스크립트에 명시적으로 스레드가 없지만, 이벤트 모델이 있으며, 임의의 URL에서 임의의 (단지 XML 또는 HTML) 데이터를 요청하는 `XMLHttpRequest` 객체가 있다. 이 객체는 몇가지 다른 상태 이벤트를 가지고 있고, 우리는 이것을 이용하여 브라우저가 응답 상태에 머무는 동안 비동기적으로 데이터를 얻을 수 있다. 당신이 제어할 수 있는 소스 코드 내의 프로그램에서 이것은 훌륭하다: 당신은 데이터 요청을 스케쥴링한 후에 그것을 간단하게 멈출 수 있고, 데이터가 사용 가능해졌을 때 그것이 실행되도록 선택할 수 있다. 그러나, 동기적 리소스 로딩의 아이디어에 기반하여 쓰여진 코드에 대해서 이것은 거의 불가능하다. 고정된 프레임레이트로 실행되는 것을 가정하는 프로그램에 대기 상태를 주입하는 것은 선택사항이 될 수 없어서, 우리는 다른 처리 방식을 찾아야만 했다.
 
-For some things, we decided to force synchronous waiting anyway. Loading a file with strings, for instance, uses a synchronous `XMLHTTPRequest`, and will halt execution of the page until the data is available. For other things, we had to get creative. Loading images, for instance, uses the browser's built-in mechanism for loading images; we build a new Image in JavaScript, set its src attribute to the image URL, and the browser does the rest, notifying us that the image is ready through the onload event. This doesn't even rely on an `XMLHTTPRequest`, it simply exploits the browser's capabilities.
+몇 가지에 대해서 우리는 어쨌든 동기적 대기를 강제하도록 결정했다. 예를들면, 문자열을 가진 파일을 로딩하는 것은 동기적인 `XMLHTTPRequest`를 사용하여, 데이터가 사용 가능해질 때까지 페이지의 실행을 멈출 것이다. 다른 것에 대해서, 우리는 창의적이 되어야만 했다. 예를들어, 이미지를 로딩하는 것은 이미지 로딩을 위한 브라우저의 빌트인 매커니즘을 사용했다; 우리는 자바스크립트 안애 새로운 `Image`를 생성하고, 그것의 `src` 속성을 이미지 URL로 설정하고, 브라우저는 `onload` 이벤트를 통해 이미지가 준비되는 것을 우리에게 알려주는 나머지 작업을 했다. 이것은 심지어 `XMLHTTPRequest`에 거의 의존하지 않았고, 단순히 브라우저의 능력을 활용하였다.
+
+당신이 이미 당신이 로딩하고 있는 이미지가 무엇인지 알고 있을 때 작업들을 더 쉽게 만들기 위해 우리는 preload 지시어들을 추가하여, 스케치가 preload이 완료되기 전까지 실행하지 않도록 했다. A user can indicate any number of images to preload via a comment block at the start of the sketch; Processing.js then tracks outstanding image loading. The `onload` event for an image tells us that it is done transferring and is considered ready to be rendered (rather than simply having been downloaded but not decoded to a pixel array in memory yet), after which we can populate the corresponding Processing `PImage` object with the correct values (`width`, `height`, pixel data, etc.) and clear the image from the list. Once the list is empty, the sketch gets executed, and images used during its lifetime will not require waiting.
+
+이것은 preload 지시어들의 한 예이다:
+
+~~~ { .javascript }
+    /* @pjs preload="./worldmap.jpg"; */
+
+    PImage img;
+
+    void setup() {
+      size(640,480);
+      noLoop();
+      img = loadImage("worldmap.jpg"); }
+
+    void draw() {
+      image(img,0,0); }
+~~~
+
 
 ## Links
 
