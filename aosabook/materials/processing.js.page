@@ -10,7 +10,7 @@
 
 Processing.js는 Java 또는 플러그인의 필요 없이 웹에 프로세싱을 가져오기 위해 설계된 자매 프로젝트이다. 이것은 John Resig에 의해 2008년에 대중에게 공개된 컨셉 라이브러리의 증거와 함께 그래픽 컨텍스트로-당시에는 아주 새로웠던-HTML5 `<canvas>` 요소를 사용함으로써 프로세싱 언어가 웹으로 이식될 수 있다는 것을 보여주는 시도로 부터 시작되었다. "your code should just work"는 아이디어를 염두하고 쓰여진 Processing.js는 어떤 플러그인도 없이 웹 표준만을 사용하여 동작하는 시각화, 디지털 아트, 인터랙티브 애니메이션, 교육적 그래픽, 비디오 게임 등의 데이터를 만들기 위해 수년에 걸쳐 개선되었다. 당신이 프로세싱 IDE나 선호하는 에디터에서 프로세싱 언어를 사용하여 코드를 작성하고 `<canvas>` 요소를 사용하는 웹페이지에 그것을 포함하면, Processing.js는 `<canvas>` 요소 안에 모든 것을 렌더링하고, 평범한 스탠드얼론 프로세싱 프로그램이 하는 것과 같은 방법으로 사용자가 그래픽스와 소통할 수 있게 하는 나머지 작업을 한다.
 
-**17.1. 어떻게 작동하나?**
+### 17.1 어떻게 작동하나?
 
 Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하는 단일 객체인 프로세싱을 위한 코드를 담고 있는 `processing.js`라고 불리우는 하나의 파일이라는 것에서 오픈 소스 프로젝트로써 약간 특이하다. 코드를 구성하는 방법 측면에서, 매 릴리즈와 함께 이 객체에 대한 약간의 청소를 시도할 때마다 우리는 끊임없이 그것 내부 주변의 것들을 정리한다. 그것의 설계는 비교적 간단하며, 그것의 함수는 하나의 문장으로 설명될 수 있다: 이것은 프로세싱 소스 코드를 순수 자바스크립 소스 코드로 재작성한 것이고 모든 프로세싱 API 함수 호출은 자바스크립트 프로세싱 객체에 대응되는 함수로 매핑될 수 있다. 그 함수 호출은 프로세싱 호출이 자바 애플릿 캔버스 상에 미치는 결과와 동일한 것을 `<canvas>` 상에 가져온다. (번역주: 한문장인데 번역이 힘들어서 두문장으로 잘랐습니다. ㅠ.ㅠ)
 
@@ -70,7 +70,7 @@ Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하�
 
 이러한 문제를 다루는 것은 사용자가 요구하는 것과 우리가 주어진 웹 기술로 할 수 있는 것 사이에 트레이드오프가 되었다. 다음 섹션은 좀 더 자세히 이러한 이슈 각각에 대해 논의하게 될 것이다.
 
-**17.2. 상당한 차이점들**
+### 17.2 상당한 차이점들
 
 **자바 프로그램은 그들 자신의 스레드를 갖는다; 자바스크립트는 당신의 브라우저를 쓸 수 없게 만들 수 있다.**
 
@@ -98,6 +98,39 @@ Processing.js는 그것의 코드 기반이 전체 라이브러리를 구성하�
       image(img,0,0); }
 ~~~
 
+### 17.3 코드 구성요소
+
+Processing.js는 큰 단일 파일로써 표현되고 개발되었지만, 구조적으로 세개의 다른 구성요소들로 표현된다: 1) 프로세싱 소스 코드를 Processing.js가 첨가된 자바스크립트로 변환하고 그것을 실행시킬 책임을 가진 런쳐, 2) 모든 스케치에 의해 사용되는 정적 기능, 3) 개별 객체에 묶인 스케치 기능.
+
+#### 런쳐
+
+런처는 코드 전처리, 코드 변환, 스케치 실행을 처리한다.
+
+**전처리 (Preprocessing)**
+
+전처리 단계에서, Processing.js 지시어들은 코드로 부터 분리되어 작동한다. 이러한 지시어는 두 종류가 있다: 설정과 로드 명령.
+"it should just work" 철학과 함께 유지된 적은 수 지시어들이 있다. 스케치 저자가 변경할 수 있는 설정은 오직 페이지 상호작용에 관계된 것뿐이다.
+기본적으로 스케치는 페이지가 포커스안에 있지 않더라도 실행을 유지하지만, 스케치에 `pauseOnBlur = true` 지시어를 설정하면 스케치가 실행 중인 페이지가 포커스를 잃으면 실행이 멈추고, 페이지가 다시 포커스를 얻으면 실행이 재개된다. 또한 기본적으로 키보드 입력은 포커스되어 있는 스케치에 보내지다. 이것은 사람들이 여러 스케치를 동일한 페이지에서 실행할 때, 한 스케치를 위한 키보드 입력이 다른 스케치에 의해 처리되지 않도록 하기 위해 특히 중요하다. 그러나, `globalKeyEvents = true` 지시어를 사용하여 페이지에서 실행 중인 모든 스케치가 키보드 이벤트가 처리되도록 이 기능을 사용하지 않을 수 있다.
+
+Load instructions take the form of the aforementioned image preloading and font preloading. Because images and fonts can be used by multiple sketches, they are loaded and tracked globally, so that different sketches don't attempt multiple loads for the same resource.
+
+** Code Conversion** 
+
+The code conversion component decomposes the source code into AST nodes, such as statements and expressions, methods, variables, classes, etc. This AST then expanded to JavaScript source code that builds a sketch-equivalent program when executed. This converted source code makes heavy use of the Processing.js instance framework for setting up class relations, where classes in the Processing source code become JavaScript prototypes with special functions for determining superclasses and bindings for superclass functions and variables.
+
+**Sketch Execution**
+
+The final step in the launch process is sketch execution, which consists of determining whether or not all preloading has finished, and if it has, adding the sketch to the list of running instances and triggering its JavaScript onLoad event so that any sketch listeners can take the appropriate action. After this the Processing chain is run through: setup, then draw, and if the sketch is a looping sketch, setting up an interval call to draw with an interval length that gets closest to the desired framerate for the sketch.
+
+#### 정적 라이브러리
+
+#### 인스턴스 코드
+
+
+
+### 17.4 Developing Processing.js
+
+### 17.5 Lessons Learned
 
 ## Links
 
