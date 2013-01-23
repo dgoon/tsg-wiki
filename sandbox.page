@@ -27,3 +27,22 @@ Hello. 위키 연습장 입니다.
 for x in range(10):
     print x
 ~~~
+
+## FESTIVAL (Python 3.3)
+~~~ { .python }
+from itertools import accumulate, islice
+
+def solve(N, L, costs):
+    return min(cost_total / n
+        for i in range(N-L+1)
+        for n, cost_total
+           in enumerate(islice(accumulate(costs[i:]), i+L-1, None), L)
+    )
+
+def main():
+    C = int(input())
+    for _ in range(C):
+        N, L = map(int, input().split())
+        costs = tuple(map(int, input().split()))
+        print(solve(N, L, costs))
+~~~
