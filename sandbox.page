@@ -46,3 +46,6 @@ def main():
         costs = tuple(map(int, input().split()))
         print(solve(N, L, costs))
 ~~~
+
+## link
+[link](http://kr.battle.net/d3/ko/profile/falsetru-3184/hero/8504765)
