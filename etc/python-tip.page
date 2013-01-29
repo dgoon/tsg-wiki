@@ -17,7 +17,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> import imp
 >>> path = r'c:\t\a-b.py'
 >>> with open(path) as f:
-...     a_b = imp.load_module('a_b', f, path, ('.py', 'U', 1))
+...     a_b = imp.load_module('a_b', f, path, ('.py', 'U', imp.PY_SOURCE))
 ...
 >>> a_b
 <module 'a_b' from 'c:\t\a-b.pyc'>
