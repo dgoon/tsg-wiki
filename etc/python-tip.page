@@ -48,3 +48,9 @@ print(a_b.x)
 [http://docs.python.org/2/library/os.path.html#os.path.getmtime](http://docs.python.org/2/library/os.path.html#os.path.getmtime)
 
 [http://docs.python.org/2/library/os.html#os.stat](http://docs.python.org/2/library/os.html#os.stat)
+
+### Run subprocess as another user
+
+~~~ { .python }
+subprocess.Popen(...., preexec_fn=lambda: os.seteuid(...))
+~~~
