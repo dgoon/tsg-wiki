@@ -1,3 +1,28 @@
+### Memoize
+
 [memoize 날로 먹기 (Python 3.2+)](http://docs.python.org/3/library/functools.html#functools.lru_cache)
 
 [memoize 날로 먹기](http://wiki.python.org/moin/PythonDecoratorLibrary#Memoize)
+
+
+### 파일이름에 모듈이름에 허용되지 않는 문자가 들어있을때 임포트하기.
+
+~~~
+C:\t>type a-b.py
+x = 1
+
+C:\t>python
+Python 2.7.3 (default, Apr 10 2012, 23:24:47) [MSC v.1500 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import imp
+>>> path = r'c:\t\a-b.py'
+>>> with open(path) as f:
+...     a_b = imp.load_module('a_b', f, path, ('.py', 'U', 1))
+...
+>>> a_b
+<module 'a_b' from 'c:\t\a-b.pyc'>
+>>> a_b.__file__
+'c:\\t\\a-b.pyc'
+~~~
+
+[http://docs.python.org/2/library/imp.html#imp.load_module](http://docs.python.org/2/library/imp.html#imp.find_module)
