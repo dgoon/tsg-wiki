@@ -26,3 +26,9 @@ Type "help", "copyright", "credits" or "license" for more information.
 ~~~
 
 [http://docs.python.org/2/library/imp.html#imp.load_module](http://docs.python.org/2/library/imp.html#imp.find_module)
+
+
+### ..
+
+[http://docs.python.org/2/library/os.html#os.seteuid](http://docs.python.org/2/library/os.html#os.seteuid)
+[http://docs.python.org/2/library/pwd.html#pwd.getpwnam](http://docs.python.org/2/library/pwd.html#pwd.getpwnam)
