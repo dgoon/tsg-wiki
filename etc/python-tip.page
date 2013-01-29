@@ -44,3 +44,7 @@ print(a_b.x)
 [http://docs.python.org/2/library/os.html#os.seteuid](http://docs.python.org/2/library/os.html#os.seteuid)
 
 [http://docs.python.org/2/library/pwd.html#pwd.getpwnam](http://docs.python.org/2/library/pwd.html#pwd.getpwnam)
+
+[http://docs.python.org/2/library/os.path.html#os.path.getmtime](http://docs.python.org/2/library/os.path.html#os.path.getmtime)
+
+[http://docs.python.org/2/library/os.html#os.stat](http://docs.python.org/2/library/os.html#os.stat)
