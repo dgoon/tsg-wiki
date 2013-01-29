@@ -7,7 +7,9 @@
 
 ### 파일이름에 모듈이름에 허용되지 않는 문자가 들어있을때 임포트하기.
 
-~~~
+#### Python <3.3
+
+~~~ { .python }
 C:\t>type a-b.py
 x = 1
 
@@ -27,6 +29,15 @@ Type "help", "copyright", "credits" or "license" for more information.
 
 [http://docs.python.org/2/library/imp.html#imp.load_module](http://docs.python.org/2/library/imp.html#imp.find_module)
 
+#### Python >=3.3
+
+~~~ { .python }
+import importlib.machinery
+path = r'c:\t\xyz'
+loader = importlib.machinery.SourceFileLoader('xyz', path)
+a_b = loader.load_module()
+print(a_b.x)
+~~~
 
 ### ..
 
