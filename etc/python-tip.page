@@ -27,7 +27,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 'c:\\t\\a-b.pyc'
 ~~~
 
-[http://docs.python.org/2/library/imp.html#imp.load_module](http://docs.python.org/2/library/imp.html#imp.find_module)
+[http://docs.python.org/2/library/imp.html#imp.load_module](http://docs.python.org/2/library/imp.html#imp.load_module)
 
 #### Python >=3.3
 
