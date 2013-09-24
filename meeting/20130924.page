@@ -20,3 +20,8 @@
     * [NERD2](http://www.algospot.com/judge/problem/read/NERD2)를 풀고가고 싶습니다.
 
 ## 회고
+
+* gsong: suffix array 블로그 글로 써보려고 합니다. 비공개로 써야지...
+* dgoon: 일단 돌아가는 아호-코라식을 파이썬으로 만들었어요. 문제는 천천히 풀겠어요.
+* falsetru: 뒤로 갈 수록 이해하던 거에서 믿음의 영역으로 넘어가고 있어요.
+* haru: NERD2 이진트리를 직접 구현했다가 TLE 방법 당하고, 책에 있는 풀이로 AC! 
